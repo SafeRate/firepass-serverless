@@ -1,5 +1,5 @@
 import { api } from "@serverless/cloud";
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import { schema } from "./schema";
 
 class ServerlessCloudApollo extends ApolloServer {
