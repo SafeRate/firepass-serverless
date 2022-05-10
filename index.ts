@@ -1,6 +1,7 @@
 import { api } from "@serverless/cloud";
 import { ApolloServer } from "apollo-server-express";
-import { schema } from "./schema";
+import typeDefs from "./typeDefs";
+import { resolvers } from "./resolvers";
 
 class ServerlessCloudApollo extends ApolloServer {
   serverlessFramework() {
@@ -14,7 +15,11 @@ class ServerlessCloudApollo extends ApolloServer {
 
 (async () => {
   try {
-    const server = new ServerlessCloudApollo({ schema });
+    const server = new ServerlessCloudApollo({
+      typeDefs,
+      resolvers,
+      csrfPrevention: true,
+    });
     await server.ensureStarted();
 
     api.use(server.getMiddleware({ path: "/graphql" }));

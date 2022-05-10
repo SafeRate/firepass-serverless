@@ -1,9 +1,9 @@
-import * as Models from "./models";
-import { Mutation } from "./Mutations";
-import { Query } from "./Queries";
+import { Mutation } from "./Mutation";
+import { Query } from "./Query";
+import Scalars from "./Scalars";
 
 export const resolvers = {
-  ...Models,
+  ...Scalars,
   Query,
   Mutation,
 };
