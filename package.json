@@ -1,0 +1,23 @@
+{
+  "name": "firepass-serverless",
+  "version": "1.0.0",
+  "description": "Firepass Serverless",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "cloud",
+    "test": "cloud test"
+  },
+  "devDependencies": {
+    "@serverless/cloud": "^2.0.0",
+    "@types/jest": "^26.0.24"
+  },
+  "serverless": {
+    "app": "firepass-serverless",
+    "org": "saferate"
+  },
+  "dependencies": {
+    "apollo-server-express": "^3.7.0",
+    "nexus": "^1.3.0"
+  }
+}
