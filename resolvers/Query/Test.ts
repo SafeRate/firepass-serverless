@@ -1,3 +1,5 @@
-export const getHelloWorld = () => {
-  return "GET HELLO WORLD";
+export const Test = {
+  getHelloWorld: () => {
+    return "GET HELLO WORLD";
+  },
 };

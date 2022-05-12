@@ -1,7 +1,7 @@
 import { api } from "@serverless/cloud";
 import { ApolloServer } from "apollo-server-express";
-import typeDefs from "./typeDefs";
-import { resolvers } from "./resolvers";
+import { myTypeDefs } from "./typeDefs";
+import { resolvers } from "./resolvers/resolvers";
 
 class ServerlessCloudApollo extends ApolloServer {
   serverlessFramework() {
@@ -14,9 +14,11 @@ class ServerlessCloudApollo extends ApolloServer {
 }
 
 (async () => {
+  console.log("Hello test2!");
+
   try {
     const server = new ServerlessCloudApollo({
-      typeDefs,
+      typeDefs: myTypeDefs,
       resolvers,
       csrfPrevention: true,
     });

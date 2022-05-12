@@ -1,4 +1,4 @@
-import * as Test from "./Test";
+import { Test } from "./Test";
 
 export const Mutation = {
   ...Test,

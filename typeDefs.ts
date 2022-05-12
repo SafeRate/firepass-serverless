@@ -1,6 +1,6 @@
 import { gql } from "apollo-server-express";
 
-export default gql`
+const myTypeDefs = gql`
   scalar Date
   scalar DateTime
 
@@ -12,3 +12,5 @@ export default gql`
     createHelloWorld(id: ID): String
   }
 `;
+
+export { myTypeDefs };
