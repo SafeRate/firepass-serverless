@@ -1,7 +1,7 @@
 import GraphQlIsoDate from "graphql-iso-date";
 const { GraphQLDate, GraphQLDateTime } = GraphQlIsoDate;
 
-export default {
+export const Scalars = {
   Date: GraphQLDate,
   DateTime: GraphQLDateTime,
 };
