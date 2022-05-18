@@ -6,6 +6,7 @@ const myTypeDefs = gql`
 
   type Query {
     getDocumentById(id: ID): String
+    getOneView: String
     helloWorld: String
   }
 
