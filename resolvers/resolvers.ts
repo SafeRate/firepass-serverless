@@ -1,5 +1,5 @@
-import { Mutation } from "./Mutation";
-import { Query } from "./Query";
+import { Mutation } from "./Mutation/Mutation";
+import { Query } from "./Query/Query";
 import { Scalars } from "./Scalars";
 
 const resolvers = {

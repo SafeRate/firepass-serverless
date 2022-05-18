@@ -5,11 +5,12 @@ const myTypeDefs = gql`
   scalar DateTime
 
   type Query {
-    getHelloWorld(id: ID): String
+    getDocumentById(id: ID): String
+    helloWorld: String
   }
 
   type Mutation {
-    createHelloWorld(id: ID): String
+    helloWorldMutate: String
   }
 `;
 

@@ -14,8 +14,6 @@ type Env = {
   STORAGE_TEMP_ROOT: string;
 };
 
-console.log(params);
-
 export const env: Env = {
   ...params,
 };
