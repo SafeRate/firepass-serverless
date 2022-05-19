@@ -87,17 +87,70 @@ export class EquifaxClient {
       if (result.data && result.data.access_token) {
         return result.data.access_token;
       } else {
-        console.log("Could not find access token!");
+        console.log("Could not obtain access token!");
         console.log(result);
       }
     } catch (error) {
       console.log("Error in making request");
+      console.log(error);
     }
+  };
+
+  getInstaTouchID = async function (deviceIp: string): Promise<string> {
+    const accessToken = await this.getStsAccessToken();
+    const bearerToken = `Bearer ${accessToken}`;
+
+    return deviceIp;
   };
 
   getOneView = async function (): Promise<string> {
     const accessToken = await this.getStsAccessToken(EquifaxScope.ONEVIEW);
     return accessToken;
+  };
+
+  getPreapprovalOfOne = async function (): Promise<string> {
+    const accessToken = await this.getStsAccessToken(
+      EquifaxScope.INSTATOUCH_ID
+    );
+    return accessToken;
+  };
+
+  startInstatouchIdHandshake = async function (
+    accessToken: string,
+    merchantId: string
+  ): Promise<string> {
+    const requestPath = `/business/instatouch-identity/v2/user-sessions`;
+    const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    const requestData = {
+      merchantId: env.EQUIFAX_MERCHANT_ID,
+    };
+
+    const requestHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+    };
+
+    const options = {
+      headers: requestHeaders,
+    };
+
+    try {
+      const result = await axios.post(
+        requestUrl,
+        JSON.stringify(requestData),
+        options
+      );
+      if (result.data && result.data.sessionID) {
+        return result.data.sessionID;
+      } else {
+        console.log("Could not obtain access token!");
+        console.log(result);
+      }
+    } catch (error) {
+      console.log("Error in making request");
+      console.log(error);
+    }
   };
 }
 
