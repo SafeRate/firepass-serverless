@@ -7,9 +7,13 @@
   "scripts": {
     "dev": "ts-node-dev --no-notify --respawn --transpile-only --quiet index",
     "start": "cloud",
-    "test": "cloud test"
+    "test": "cloud test",
+    "types:graphql": "yarn graphql-codegen"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.11",
+    "@graphql-codegen/typescript-resolvers": "^2.6.4",
     "@serverless/cloud": "^2.0.0",
     "@types/jest": "^26.0.24",
     "ts-node-dev": "^1.1.8",

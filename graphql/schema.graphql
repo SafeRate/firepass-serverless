@@ -1,0 +1,12 @@
+scalar Date
+scalar DateTime
+
+type Query {
+  getDocumentById(id: ID): String
+  getOneView: String
+  helloWorld: String
+}
+
+type Mutation {
+  helloWorldMutate: String
+}
