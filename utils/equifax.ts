@@ -117,13 +117,20 @@ export class EquifaxClient {
 
   startInstatouchIdHandshake = async function (
     accessToken: string,
-    merchantId: string
+    deviceIp: string
   ): Promise<string> {
+    let returnObj = {
+      sessionID: "",
+      instaTouch: "",
+      carrier: "",
+    };
+
     const requestPath = `/business/instatouch-identity/v2/user-sessions`;
     const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
 
     const requestData = {
       merchantId: env.EQUIFAX_MERCHANT_ID,
+      deviceIp,
     };
 
     const requestHeaders = {
@@ -141,8 +148,14 @@ export class EquifaxClient {
         JSON.stringify(requestData),
         options
       );
-      if (result.data && result.data.sessionID) {
-        return result.data.sessionID;
+
+      if (result.data) {
+        const resultData = result.data;
+        if (resultData.sessionID && resultData.instaTouch) {
+          returnObj.sessionID = resultData.sessionID;
+          returnObj.instaTouch = resultData.instaTouch;
+          returnObj.carrier = resultData.carrier ? resultData.carrier : "";
+        }
       } else {
         console.log("Could not obtain access token!");
         console.log(result);
