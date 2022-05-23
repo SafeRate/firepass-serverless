@@ -1,8 +1,8 @@
 import { api } from "@serverless/cloud";
 import { ApolloServer } from "apollo-server-express";
-import { myTypeDefs } from "./typeDefs";
-import { resolvers } from "./resolvers/resolvers";
-import { createContext } from "./resolvers/createContext";
+import { typeDefs } from "./graphql/typeDefs";
+import { resolvers } from "./graphql/resolvers";
+import { createContext } from "./graphql/createContext";
 
 class ServerlessCloudApollo extends ApolloServer {
   serverlessFramework() {
@@ -17,7 +17,7 @@ class ServerlessCloudApollo extends ApolloServer {
 (async () => {
   try {
     const server = new ServerlessCloudApollo({
-      typeDefs: myTypeDefs,
+      typeDefs,
       resolvers,
       csrfPrevention: true,
       context: createContext(),

@@ -5,10 +5,3 @@ export type Context = {
   equifaxClient: typeof equifaxClient;
   parcelClient: typeof parcelClient;
 };
-
-export const createContext = function (): Context {
-  return {
-    equifaxClient,
-    parcelClient,
-  };
-};
