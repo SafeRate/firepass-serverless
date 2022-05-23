@@ -52,10 +52,23 @@ enum IdentityOutputCode {
   "EN-PF" = "EN-PF",
 }
 
+export enum EquifaxDesignator {
+  CURRENT = "CURRENT",
+  PREVIOUS = "PREVIOUS",
+}
+
 type instaTouchIdHandshake = {
   sessionId: string;
   instaTouch: string;
   carrier: string | null;
+};
+
+export type EquifaxAddress = {
+  type: EquifaxDesignator;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
 };
 
 export class EquifaxClient {
