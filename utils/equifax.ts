@@ -26,6 +26,12 @@ enum EquifaxScope {
   TALENT_REPORT_EMPLOYMENT = "https://api.equifax.com/business/staffing/v2/talent-reports/employment",
 }
 
+type instaTouchIdHandshake = {
+  sessionId: string;
+  instaTouch: string;
+  carrier: string;
+};
+
 export class EquifaxClient {
   b2b2cUrlBase: string;
   b2b2cStage: EquifaxStage;
@@ -96,9 +102,36 @@ export class EquifaxClient {
     }
   };
 
+  //https://developer.equifax.com/products/apiproducts/instatouchr-id
   getInstaTouchID = async function (deviceIp: string): Promise<string> {
-    const accessToken = await this.getStsAccessToken();
+    // Subscribe to get API credentials.
+    // Use API credentials to generate an access token.
+    const accessToken = await this.getStsAccessToken(
+      EquifaxScope.INSTATOUCH_ID
+    );
     const bearerToken = `Bearer ${accessToken}`;
+
+    // Make the Handshake call to start a new API session including the "deviceIP" (‘deviceIP’ determines if the mobile is on the mobile network or WiFi).
+    const instaTouchIdHandshakeSession: instaTouchIdHandshake =
+      this.startInstatouchIdHandshake(bearerToken, deviceIp);
+
+    const isMobile = instaTouchIdHandshakeSession.carrier !== "";
+    let updateMDNSuccessful = false;
+
+    // Mobile Flow:
+    //     Make the "Header Enrichment" call from the mobile device.
+    //     Make the Update MDN call; if the update MDN call fails, then the consumer should be routed to the OTP process.
+    if (isMobile) {
+    }
+
+    // WiFi flow (OTP process) or "Error" Update MDN:
+    //     Send OTP.
+    //     Validate OTP.
+    if (!isMobile || updateMDNSuccessful === false) {
+    }
+
+    // Submit consumer's Consent to obtain their data.
+    // Obtain consumer's Identity.
 
     return deviceIp;
   };
@@ -118,9 +151,9 @@ export class EquifaxClient {
   startInstatouchIdHandshake = async function (
     accessToken: string,
     deviceIp: string
-  ): Promise<string> {
-    let returnObj = {
-      sessionID: "",
+  ): Promise<instaTouchIdHandshake> {
+    let returnObj: instaTouchIdHandshake = {
+      sessionId: "",
       instaTouch: "",
       carrier: "",
     };
@@ -152,7 +185,7 @@ export class EquifaxClient {
       if (result.data) {
         const resultData = result.data;
         if (resultData.sessionID && resultData.instaTouch) {
-          returnObj.sessionID = resultData.sessionID;
+          returnObj.sessionId = resultData.sessionID;
           returnObj.instaTouch = resultData.instaTouch;
           returnObj.carrier = resultData.carrier ? resultData.carrier : "";
         }
@@ -164,6 +197,8 @@ export class EquifaxClient {
       console.log("Error in making request");
       console.log(error);
     }
+
+    return returnObj;
   };
 }
 
