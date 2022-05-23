@@ -26,22 +26,48 @@ enum EquifaxScope {
   TALENT_REPORT_EMPLOYMENT = "https://api.equifax.com/business/staffing/v2/talent-reports/employment",
 }
 
+enum ConsentEventType {
+  OPT_IN = "opt-in",
+  OPT_OUT = "opt-out",
+}
+
+enum ConsentType {
+  SMS = "SMS",
+  WHITELIST = "whitelist",
+}
+
+enum ConsentMethod {
+  TCO = "TCO",
+  TCP = "TCP",
+  MA = "MA",
+  OTHER = "Other",
+}
+
+enum ConsentServices {
+  IDENTITY = "identity",
+}
+
+enum IdentityOutputCode {
+  EN = "EN",
+  "EN-PF" = "EN-PF",
+}
+
 type instaTouchIdHandshake = {
   sessionId: string;
   instaTouch: string;
-  carrier: string;
+  carrier: string | null;
 };
 
 export class EquifaxClient {
-  b2b2cUrlBase: string;
-  b2b2cStage: EquifaxStage;
-  b2b2cAccessToken: string;
-  standardStsUrlBase: string;
-  standardStsAccount: string;
-  standardStsId: string;
-  standardStsSecret: string;
-  standardStsSecurity: string;
-  standardStsStage: string;
+  private b2b2cUrlBase: string;
+  private b2b2cStage: EquifaxStage;
+  private b2b2cAccessToken: string;
+  private standardStsUrlBase: string;
+  private standardStsAccount: string;
+  private standardStsId: string;
+  private standardStsSecret: string;
+  private standardStsSecurity: string;
+  private standardStsStage: string;
 
   constructor() {
     this.b2b2cAccessToken = env.EQUIFAX_B2B2C_ACCESS_TOKEN;
@@ -61,9 +87,11 @@ export class EquifaxClient {
     }
   }
 
-  handleEquifaxRequestError() {}
+  private handleEquifaxRequestError() {}
 
-  getStsAccessToken = async function (scope: EquifaxScope): Promise<string> {
+  private getStsAccessToken = async function (
+    scope: EquifaxScope
+  ): Promise<string> {
     const requestPath = `/v2/oauth/token`;
     const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
 
@@ -97,65 +125,108 @@ export class EquifaxClient {
         console.log(result);
       }
     } catch (error) {
-      console.log("Error in making request");
-      console.log(error);
+      console.log("Error in making Sts Access token request");
+      // console.log(error);
     }
   };
 
   //https://developer.equifax.com/products/apiproducts/instatouchr-id
-  getInstaTouchID = async function (deviceIp: string): Promise<string> {
+  public getInstaTouchID = async function (
+    deviceIp: string
+  ): Promise<instaTouchIdHandshake> {
     // Subscribe to get API credentials.
     // Use API credentials to generate an access token.
     const accessToken = await this.getStsAccessToken(
       EquifaxScope.INSTATOUCH_ID
     );
-    const bearerToken = `Bearer ${accessToken}`;
+    console.log("accessToken", accessToken);
 
     // Make the Handshake call to start a new API session including the "deviceIP" (‘deviceIP’ determines if the mobile is on the mobile network or WiFi).
     const instaTouchIdHandshakeSession: instaTouchIdHandshake =
-      this.startInstatouchIdHandshake(bearerToken, deviceIp);
+      this.startInstatouchIdHandshake(accessToken, deviceIp);
 
-    const isMobile = instaTouchIdHandshakeSession.carrier !== "";
-    let updateMDNSuccessful = false;
-
-    // Mobile Flow:
-    //     Make the "Header Enrichment" call from the mobile device.
-    //     Make the Update MDN call; if the update MDN call fails, then the consumer should be routed to the OTP process.
-    if (isMobile) {
-    }
-
-    // WiFi flow (OTP process) or "Error" Update MDN:
-    //     Send OTP.
-    //     Validate OTP.
-    if (!isMobile || updateMDNSuccessful === false) {
-    }
-
-    // Submit consumer's Consent to obtain their data.
-    // Obtain consumer's Identity.
-
-    return deviceIp;
+    return instaTouchIdHandshakeSession;
   };
 
-  getOneView = async function (): Promise<string> {
+  public getOneView = async function (): Promise<string> {
     const accessToken = await this.getStsAccessToken(EquifaxScope.ONEVIEW);
     return accessToken;
   };
 
-  getPreapprovalOfOne = async function (): Promise<string> {
+  public getOtpPasscode = async (
+    sessionId: string,
+    mobileNumber: string
+  ): Promise<{ sessionId: string; transactionKey: string }> => {
+    console.log("Hello world");
+    const accessToken = await this.getStsAccessToken(
+      EquifaxScope.INSTATOUCH_ID
+    );
+
+    const returnObj = {
+      sessionId,
+      transactionKey: null,
+    };
+
+    const requestPath = `/business/instatouch-identity/v2/wifi-sessions/identity-verifications/one-time-passcodes/send`;
+    const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    const requestData = {
+      merchantId: env.EQUIFAX_MERCHANT_ID,
+      consumerIdentifier: {
+        subjectIdentifier: mobileNumber,
+        subjectType: "MDN",
+      },
+    };
+
+    const requestHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+      "efx-sessionId": sessionId,
+    };
+
+    const options = {
+      headers: requestHeaders,
+    };
+
+    try {
+      const result = await axios.post(
+        requestUrl,
+        JSON.stringify(requestData),
+        options
+      );
+
+      if (result.data) {
+        if (result?.data?.otpLifecycle?.transactionKey) {
+          returnObj.transactionKey = result.data.otpLifecycle.transactionKey;
+        } else {
+          throw new Error(
+            "Don't have required transaction key for OTP passcode"
+          );
+        }
+      }
+    } catch (error) {
+      console.log("Error in making request");
+      console.log(error);
+    }
+
+    return returnObj;
+  };
+
+  public getPreapprovalOfOne = async function (): Promise<string> {
     const accessToken = await this.getStsAccessToken(
       EquifaxScope.INSTATOUCH_ID
     );
     return accessToken;
   };
 
-  startInstatouchIdHandshake = async function (
+  private startInstatouchIdHandshake = async function (
     accessToken: string,
     deviceIp: string
   ): Promise<instaTouchIdHandshake> {
-    let returnObj: instaTouchIdHandshake = {
-      sessionId: "",
-      instaTouch: "",
-      carrier: "",
+    const returnObj = {
+      sessionId: null,
+      instaTouch: null,
+      carrier: null,
     };
 
     const requestPath = `/business/instatouch-identity/v2/user-sessions`;
@@ -184,14 +255,15 @@ export class EquifaxClient {
 
       if (result.data) {
         const resultData = result.data;
-        if (resultData.sessionID && resultData.instaTouch) {
-          returnObj.sessionId = resultData.sessionID;
-          returnObj.instaTouch = resultData.instaTouch;
-          returnObj.carrier = resultData.carrier ? resultData.carrier : "";
+        if (!resultData.sessionID || !resultData.instaTouch) {
+          throw new Error("Don't have required data for Instatouch handshake");
         }
-      } else {
-        console.log("Could not obtain access token!");
-        console.log(result);
+
+        returnObj.sessionId = resultData.sessionID;
+        returnObj.instaTouch = resultData.instaTouch;
+        if (resultData.carrier) {
+          returnObj.carrier = resultData.carrier;
+        }
       }
     } catch (error) {
       console.log("Error in making request");
@@ -199,6 +271,219 @@ export class EquifaxClient {
     }
 
     return returnObj;
+  };
+
+  public completeInstaTouchOtp = async (
+    mobileNumber: string,
+    passcode: string,
+    sessionId: string,
+    transactionKey: string,
+    SSN: string,
+    zipCode: string
+  ) => {
+    const accessToken = await this.getStsAccessToken(
+      EquifaxScope.INSTATOUCH_ID
+    );
+    const isValid = await this.validateOtpSession(
+      mobileNumber,
+      passcode,
+      sessionId,
+      transactionKey,
+      accessToken
+    );
+
+    if (isValid) {
+      const isConsentRecorded = await this.recordConsent(
+        accessToken,
+        sessionId,
+        ConsentEventType.OPT_IN,
+        ConsentType.WHITELIST,
+        ConsentMethod.TCO,
+        [ConsentServices.IDENTITY]
+      );
+
+      if (isConsentRecorded) {
+        await this.getConsumerIdentity(
+          accessToken,
+          sessionId,
+          SSN,
+          zipCode,
+          IdentityOutputCode.EN
+        );
+      }
+    }
+  };
+
+  private getConsumerIdentity = async (
+    accessToken: string,
+    sessionId: string,
+    SSN: string,
+    zipCode: string,
+    outputCode: IdentityOutputCode
+  ) => {
+    const requestPath = `/business/instatouch-identity/v2/user-sessions/user-attributes`;
+    const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    const requestData = {
+      merchantId: env.EQUIFAX_MERCHANT_ID,
+      outputCode,
+      authentication: {
+        zipCode,
+        SSN,
+      },
+    };
+
+    const requestHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+      "efx-sessionId": sessionId,
+    };
+
+    const options = {
+      headers: requestHeaders,
+    };
+
+    try {
+      const result = await axios.post(
+        requestUrl,
+        JSON.stringify(requestData),
+        options
+      );
+
+      if (result.data) {
+        const resultData = result.data;
+        console.log(JSON.stringify(resultData, null, 4));
+        if (resultData.instaTouch) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } catch (error) {
+      console.log("Error in making request");
+      console.log(error);
+    }
+  };
+
+  private recordConsent = async (
+    accessToken: string,
+    sessionId: string,
+    consentEvent: ConsentEventType,
+    consentType: ConsentType,
+    consentMethod: ConsentMethod,
+    consentForServices: ConsentServices[]
+  ) => {
+    const requestPath = `/business/instatouch-identity/v2/user-sessions/user-consents`;
+    const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    const requestData = {
+      merchantId: env.EQUIFAX_MERCHANT_ID,
+      consumerConsent: {
+        consentEventDate: new Date().toISOString(),
+        consentEvent,
+        consentType,
+        consentMethod,
+        consentForServices,
+      },
+      consumerIdentifier: {
+        subjectIdentifier: sessionId,
+        subjectType: "sessionId",
+      },
+    };
+
+    const requestHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+      "efx-sessionId": sessionId,
+    };
+
+    const options = {
+      headers: requestHeaders,
+    };
+
+    try {
+      const result = await axios.post(
+        requestUrl,
+        JSON.stringify(requestData),
+        options
+      );
+
+      if (result.data) {
+        const resultData = result.data;
+        console.log("resultData", resultData);
+        if (
+          resultData.consumerIdentifier &&
+          resultData.consumerIdentifier.subjectIdentifier
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } catch (error) {
+      console.log("Error in making request");
+      console.log(error);
+    }
+
+    return false;
+  };
+
+  private validateOtpSession = async (
+    mobileNumber: string,
+    passcode: string,
+    sessionId: string,
+    transactionKey: string,
+    accessToken: string
+  ) => {
+    const requestPath = `/business/instatouch-identity/v2/wifi-sessions/identity-verifications/one-time-passcodes/validate`;
+    const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    const requestData = {
+      merchantId: env.EQUIFAX_MERCHANT_ID,
+      consumerIdentifier: {
+        subjectIdentifier: mobileNumber,
+        subjectType: "MDN",
+      },
+      consumerAuthentication: {
+        passcode,
+      },
+      otpLifecycle: {
+        transactionKey,
+      },
+    };
+
+    const requestHeaders = {
+      Authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+      "efx-sessionId": sessionId,
+    };
+
+    const options = {
+      headers: requestHeaders,
+    };
+
+    try {
+      const result = await axios.post(
+        requestUrl,
+        JSON.stringify(requestData),
+        options
+      );
+
+      if (result.data) {
+        const resultData = result.data;
+        console.log("resultData", resultData);
+        if (resultData.instaTouch) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } catch (error) {
+      console.log("Error in making request");
+      console.log(error);
+    }
+
+    return false;
   };
 }
 

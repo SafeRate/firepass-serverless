@@ -1,12 +1,38 @@
 scalar Date
 scalar DateTime
 
+type InstaTouchIdHandshake {
+  sessionId: String!
+  instaTouch: String!
+  carrier: String
+}
+
+type OtpPasscode {
+  sessionId: String!
+  transactionKey: String!
+}
+
 type Query {
   getDocumentById(id: ID): String
+  getInstaTouchIdSession: InstaTouchIdHandshake
   getOneView: String
+  getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
   helloWorld: String
 }
 
 type Mutation {
+  completeInstaTouchIdMobile(
+    sessionId: String!
+    zipCode: String!
+    SSN: String!
+  ): Boolean
+  completeInstaTouchIdOtp(
+    mobileNumber: String!
+    passcode: String!
+    sessionId: String!
+    transactionKey: String!
+    zipCode: String!
+    SSN: String!
+  ): Boolean
   helloWorldMutate: String
 }

@@ -17,21 +17,61 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type InstaTouchIdHandshake = {
+  __typename?: 'InstaTouchIdHandshake';
+  carrier?: Maybe<Scalars['String']>;
+  instaTouch: Scalars['String'];
+  sessionId: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  completeInstaTouchIdMobile?: Maybe<Scalars['Boolean']>;
+  completeInstaTouchIdOtp?: Maybe<Scalars['Boolean']>;
   helloWorldMutate?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCompleteInstaTouchIdMobileArgs = {
+  SSN: Scalars['String'];
+  sessionId: Scalars['String'];
+  zipCode: Scalars['String'];
+};
+
+
+export type MutationCompleteInstaTouchIdOtpArgs = {
+  SSN: Scalars['String'];
+  mobileNumber: Scalars['String'];
+  passcode: Scalars['String'];
+  sessionId: Scalars['String'];
+  transactionKey: Scalars['String'];
+  zipCode: Scalars['String'];
+};
+
+export type OtpPasscode = {
+  __typename?: 'OtpPasscode';
+  sessionId: Scalars['String'];
+  transactionKey: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
   getDocumentById?: Maybe<Scalars['String']>;
+  getInstaTouchIdSession?: Maybe<InstaTouchIdHandshake>;
   getOneView?: Maybe<Scalars['String']>;
+  getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
   helloWorld?: Maybe<Scalars['String']>;
 };
 
 
 export type QueryGetDocumentByIdArgs = {
-  id: Scalars['ID'];
+  id?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type QueryGetTouchIdOtpPasscodeArgs = {
+  mobileNumber: Scalars['String'];
+  sessionId: Scalars['String'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -108,7 +148,9 @@ export type ResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
+  InstaTouchIdHandshake: ResolverTypeWrapper<InstaTouchIdHandshake>;
   Mutation: ResolverTypeWrapper<{}>;
+  OtpPasscode: ResolverTypeWrapper<OtpPasscode>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
 }>;
@@ -119,7 +161,9 @@ export type ResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'];
   DateTime: Scalars['DateTime'];
   ID: Scalars['ID'];
+  InstaTouchIdHandshake: InstaTouchIdHandshake;
   Mutation: {};
+  OtpPasscode: OtpPasscode;
   Query: {};
   String: Scalars['String'];
 }>;
@@ -132,20 +176,39 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export type InstaTouchIdHandshakeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InstaTouchIdHandshake'] = ResolversParentTypes['InstaTouchIdHandshake']> = ResolversObject<{
+  carrier?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  instaTouch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
+  completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
   helloWorldMutate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
+export type OtpPasscodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['OtpPasscode'] = ResolversParentTypes['OtpPasscode']> = ResolversObject<{
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  transactionKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  getDocumentById?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryGetDocumentByIdArgs, 'id'>>;
+  getDocumentById?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetDocumentByIdArgs>>;
+  getInstaTouchIdSession?: Resolver<Maybe<ResolversTypes['InstaTouchIdHandshake']>, ParentType, ContextType>;
   getOneView?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
+  InstaTouchIdHandshake?: InstaTouchIdHandshakeResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  OtpPasscode?: OtpPasscodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 }>;
 

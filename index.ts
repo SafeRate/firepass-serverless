@@ -20,8 +20,17 @@ class ServerlessCloudApollo extends ApolloServer {
       typeDefs,
       resolvers,
       csrfPrevention: true,
-      context: createContext(),
+      context: ({ req }) => {
+        return { ...createContext(), ip: req.ip };
+      },
+      formatError: (error) => {
+        console.log("Error calling GraphQL query or mutation");
+        console.log(JSON.stringify(error, null, 4));
+
+        return new Error("Internal server error");
+      },
     });
+
     await server.ensureStarted();
     api.use(server.getMiddleware({ path: "/graphql" }));
   } catch (error) {
