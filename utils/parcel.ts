@@ -9,7 +9,6 @@ import { env } from "./env";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import { EquifaxAddress } from "./equifax";
-import { Query } from "@serverless/cloud";
 
 class ParcelClient {
   parcel: Parcel;
