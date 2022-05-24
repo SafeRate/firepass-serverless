@@ -34,5 +34,13 @@ type Mutation {
     zipCode: String!
     SSN: String!
   ): Boolean
+
+  createDatabase(
+    users: Boolean!
+    equifax: Boolean!
+    stripe: Boolean!
+    plaid: Boolean!
+  ): Boolean
+
   helloWorldMutate: String
 }

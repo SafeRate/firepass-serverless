@@ -28,6 +28,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   completeInstaTouchIdMobile?: Maybe<Scalars['Boolean']>;
   completeInstaTouchIdOtp?: Maybe<Scalars['Boolean']>;
+  createDatabase?: Maybe<Scalars['Boolean']>;
   helloWorldMutate?: Maybe<Scalars['String']>;
 };
 
@@ -46,6 +47,14 @@ export type MutationCompleteInstaTouchIdOtpArgs = {
   sessionId: Scalars['String'];
   transactionKey: Scalars['String'];
   zipCode: Scalars['String'];
+};
+
+
+export type MutationCreateDatabaseArgs = {
+  equifax: Scalars['Boolean'];
+  plaid: Scalars['Boolean'];
+  stripe: Scalars['Boolean'];
+  users: Scalars['Boolean'];
 };
 
 export type OtpPasscode = {
@@ -186,6 +195,7 @@ export type InstaTouchIdHandshakeResolvers<ContextType = Context, ParentType ext
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
   completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
+  createDatabase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCreateDatabaseArgs, 'equifax' | 'plaid' | 'stripe' | 'users'>>;
   helloWorldMutate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
