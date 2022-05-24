@@ -13,7 +13,12 @@ class ParcelClient {
     });
   }
 
-  public createSeedData = async function () {
+  public createDatabase = async function (
+    usersTable: boolean,
+    equifaxTables: boolean,
+    plaidTable: boolean,
+    stripeTable: boolean
+  ) {
     // https://docs.oasislabs.com/parcel/latest/quickstart/database-query.html#creating-a-database
     const database = await this.parcel.createDatabase({
       name: "FirePass DB",
@@ -21,23 +26,29 @@ class ParcelClient {
 
     console.log(`Created database ${database.id} with name: ${database.name}`);
 
-    // https://docs.oasislabs.com/parcel/latest/quickstart/database-query.html#creating-a-table
-    const createConsumersTable = {
-      sql: `CREATE TABLE consumers(id TEXT, application_id TEXT, instatouch_id TEXT, created DATETIME, updated DATETIME, revoked DATETIME, ssn TEXT, dob TEXT, first_name TEXT, last_name TEXT, addresses_current JSON, addresses_previous JSON, email TEXT, mobile TEXT, home_phone TEXT);`,
-    };
+    if (usersTable) {
+      const createUsersTable = {
+        sql: `CREATE TABLE users(id TEXT, company_id TEXT, created DATETIME, updated DATETIME, email TEXT, mobile TEXT);`,
+      };
+    }
 
-    await this.parcel.queryDatabase(database.id, createConsumersTable);
+    if (equifaxTables) {
+      // https://docs.oasislabs.com/parcel/latest/quickstart/database-query.html#creating-a-table
+      const createEquifaxConsumersTable = {
+        sql: `CREATE TABLE equifax_consumers(user_id TEXT, application_id TEXT, instatouch_id TEXT, created DATETIME, updated DATETIME, revoked DATETIME, ssn TEXT, dob TEXT, first_name TEXT, last_name TEXT, addresses_current JSON, addresses_previous JSON, email TEXT, mobile TEXT, home_phone TEXT);`,
+      };
 
-    const createGrantsTable = {
-      sql: `CREAT TABLE grants(id TEXT, consumers_id TEXT, timestamp DATETIME, consent TEXT, document_type TEXT, document_raw_id TEXT, document_anonymous_id TEXT);`,
-    };
+      await this.parcel.queryDatabase(database.id, createEquifaxConsumersTable);
 
-    await this.parcel.queryDatabase(database.id, createGrantsTable);
+      const createEquifaxGrantsTable = {
+        sql: `CREAT TABLE equifax_consents(id TEXT, consumers_id TEXT, ip TEXT, user_agent TEXT, inquiry_type TEXT, timestamp DATETIME, consent_text TEXT, document_type TEXT, document_raw_id TEXT, document_anonymous_id TEXT);`,
+      };
+
+      await this.parcel.queryDatabase(database.id, createEquifaxGrantsTable);
+    }
   };
 
   private getDocumentById = async function (id: string) {
-    console.log(`id is ${id}`);
-
     const download = this.parcel.downloadDocument(id as DocumentId);
     const tempFileName = `${env.STORAGE_TEMP_ROOT}/${uuidv4()}-${id}.json`;
     const saveLocation = fs.createWriteStream(tempFileName);
@@ -91,7 +102,34 @@ class ParcelClient {
     return document;
   };
 
-  private insertCustomer = async function (
+  public insertUser = async function (
+    $company_id: string,
+    $email: string,
+    $mobile: string
+  ) {
+    const $id = uuidv4();
+    const $created = new Date();
+    const $updated = $created;
+
+    let insertStatement = {
+      sql: "INSERT INTO users VALUES ($id, $created, $updated, $company_id, $email, $mobile)",
+      params: {
+        $id,
+        $created,
+        $updated,
+        $company_id,
+        $email,
+        $mobile,
+      },
+    };
+
+    const result = await this.parcel.queryDatabase(
+      env.PARCEL_DATABASE_ID as DatabaseId,
+      insertStatement
+    );
+  };
+
+  public insertEquifaxConsumer = async function (
     $address_current: [EquifaxAddress] | null,
     $address_previous: [EquifaxAddress] | null,
     $application_id: string | null,
@@ -118,7 +156,7 @@ class ParcelClient {
     };
 
     let insertStatement = {
-      sql: "INSERT INTO entity VALUES ($id, $application_id, $instatouch_id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $address_current, $addresses_previous, $email, $mobile, $home_phone)",
+      sql: "INSERT INTO equifax_consumers VALUES ($id, $application_id, $instatouch_id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $address_current, $addresses_previous, $email, $mobile, $home_phone)",
       params: {
         $addresses_current,
         $addresses_previous,
