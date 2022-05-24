@@ -52,7 +52,7 @@ enum IdentityOutputCode {
   "EN-PF" = "EN-PF",
 }
 
-export enum EquifaxDesignator {
+export enum EquifaxCurrentDesignator {
   CURRENT = "CURRENT",
   PREVIOUS = "PREVIOUS",
 }
@@ -63,12 +63,36 @@ type instaTouchIdHandshake = {
   carrier: string | null;
 };
 
-export type EquifaxAddress = {
-  type: EquifaxDesignator;
+type EquifaxConsumerIdentityName = {
+  firstName: string;
+  lastName: string;
+};
+
+export type EquifaxConsumerIdentityAddress = {
+  type: EquifaxCurrentDesignator;
   streetAddress: string;
   city: string;
   state: string;
-  zipCode: string;
+  zipcode: string;
+};
+
+type EquifaxIdentityIdentification = {
+  ssn?: string;
+  dob?: string;
+};
+
+type EquifaxIdentityContact = {
+  emailAddress?: string;
+  homePhone?: string;
+  mobile?: string;
+};
+
+export type EquifaxConsumerIdentity = {
+  id: string;
+  name: EquifaxConsumerIdentityName;
+  addresses: EquifaxConsumerIdentityAddress[];
+  identification: EquifaxIdentityIdentification;
+  contact: EquifaxIdentityContact;
 };
 
 export class EquifaxClient {
@@ -152,7 +176,6 @@ export class EquifaxClient {
     const accessToken = await this.getStsAccessToken(
       EquifaxScope.INSTATOUCH_ID
     );
-    console.log("accessToken", accessToken);
 
     // Make the Handshake call to start a new API session including the "deviceIP" (‘deviceIP’ determines if the mobile is on the mobile network or WiFi).
     const instaTouchIdHandshakeSession: instaTouchIdHandshake =
@@ -170,7 +193,6 @@ export class EquifaxClient {
     sessionId: string,
     mobileNumber: string
   ): Promise<{ sessionId: string; transactionKey: string }> => {
-    console.log("Hello world");
     const accessToken = await this.getStsAccessToken(
       EquifaxScope.INSTATOUCH_ID
     );
@@ -305,26 +327,33 @@ export class EquifaxClient {
       accessToken
     );
 
-    if (isValid) {
-      const isConsentRecorded = await this.recordConsent(
+    if (isValid === false) {
+      throw new Error("Unable to validate OTP!");
+    }
+
+    const isConsentRecorded = await this.recordConsent(
+      accessToken,
+      sessionId,
+      ConsentEventType.OPT_IN,
+      ConsentType.WHITELIST,
+      ConsentMethod.TCO,
+      [ConsentServices.IDENTITY]
+    );
+
+    if (isConsentRecorded === false) {
+      throw new Error("Unable to record user consent!");
+    }
+
+    const consumerIdentity: EquifaxConsumerIdentity | null =
+      await this.getConsumerIdentity(
         accessToken,
         sessionId,
-        ConsentEventType.OPT_IN,
-        ConsentType.WHITELIST,
-        ConsentMethod.TCO,
-        [ConsentServices.IDENTITY]
+        SSN,
+        zipCode,
+        IdentityOutputCode.EN
       );
 
-      if (isConsentRecorded) {
-        await this.getConsumerIdentity(
-          accessToken,
-          sessionId,
-          SSN,
-          zipCode,
-          IdentityOutputCode.EN
-        );
-      }
-    }
+    return consumerIdentity;
   };
 
   private getConsumerIdentity = async (
@@ -333,9 +362,11 @@ export class EquifaxClient {
     SSN: string,
     zipCode: string,
     outputCode: IdentityOutputCode
-  ) => {
+  ): Promise<EquifaxConsumerIdentity | null> => {
     const requestPath = `/business/instatouch-identity/v2/user-sessions/user-attributes`;
     const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
+
+    let returnObj: EquifaxConsumerIdentity | null = null;
 
     const requestData = {
       merchantId: env.EQUIFAX_MERCHANT_ID,
@@ -365,17 +396,19 @@ export class EquifaxClient {
 
       if (result.data) {
         const resultData = result.data;
-        console.log(JSON.stringify(resultData, null, 4));
-        if (resultData.instaTouch) {
-          return true;
+        // console.log(JSON.stringify(resultData, null, 4));
+        if (resultData.identity) {
+          returnObj = resultData.identity;
         } else {
-          return false;
+          throw new Error("Unable to obtain consumer identity data");
         }
       }
     } catch (error) {
       console.log("Error in making request");
       console.log(error);
     }
+
+    return returnObj;
   };
 
   private recordConsent = async (
@@ -423,7 +456,6 @@ export class EquifaxClient {
 
       if (result.data) {
         const resultData = result.data;
-        console.log("resultData", resultData);
         if (
           resultData.consumerIdentifier &&
           resultData.consumerIdentifier.subjectIdentifier
@@ -484,7 +516,6 @@ export class EquifaxClient {
 
       if (result.data) {
         const resultData = result.data;
-        console.log("resultData", resultData);
         if (resultData.instaTouch) {
           return true;
         } else {

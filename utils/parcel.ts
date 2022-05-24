@@ -8,7 +8,11 @@ import {
 import { env } from "./env";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
-import { EquifaxAddress } from "./equifax";
+import {
+  EquifaxConsumerIdentity,
+  EquifaxConsumerIdentityAddress,
+  EquifaxCurrentDesignator,
+} from "./equifax";
 
 class ParcelClient {
   parcel: Parcel;
@@ -96,13 +100,49 @@ class ParcelClient {
           console.log(error);
           noError = false;
         }
+
+        try {
+          console.log("Attempting to add an index for users.id");
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_users_id ON users(id);`,
+            params: {},
+          });
+
+          console.log("Successfully added index on users(id)");
+        } catch (error) {
+          console.log("Failed to add index on users(id);");
+          console.log(error);
+        }
+        try {
+          console.log("Attempting to add an index for users.email");
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_users_email ON users(email);`,
+            params: {},
+          });
+          console.log("Successfully added index on users(email)");
+        } catch (error) {
+          console.log("Failed to add index on users(email);");
+          console.log(error);
+        }
+        try {
+          console.log("Attempting to add an index for users.company_id");
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_users_company_id ON users(company_id);`,
+            params: {},
+          });
+          console.log("Successfully added index on users(company_id)");
+        } catch (error) {
+          console.log("Failed to add index on users(company_id);");
+          console.log(error);
+        }
       }
 
       if (equifax) {
         console.log("Attempting to create Equifax tables...");
+
         // https://docs.oasislabs.com/parcel/latest/quickstart/database-query.html#creating-a-table
         const createEquifaxConsumersTable = {
-          sql: `CREATE TABLE equifax_consumers(user_id TEXT, application_id TEXT, instatouch_id TEXT, created DATETIME, updated DATETIME, revoked DATETIME, ssn TEXT, dob TEXT, first_name TEXT, last_name TEXT, addresses_current JSON, addresses_previous JSON, email TEXT, mobile TEXT, home_phone TEXT);`,
+          sql: `CREATE TABLE equifax_consumers(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, revoked DATETIME, ssn TEXT, dob TEXT, first_name TEXT, last_name TEXT, addresses_current JSON, addresses_previous JSON, email TEXT, mobile TEXT, home_phone TEXT);`,
           params: {},
         };
 
@@ -117,6 +157,20 @@ class ParcelClient {
           console.log("Failed to create equifax consumers table!");
           console.log(error);
           noError = false;
+        }
+
+        try {
+          console.log(
+            "Attempting to add an index for equifax_consumers.user_id"
+          );
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_equifax_consumers_user_id ON equifax_consumers(user_id);`,
+            params: {},
+          });
+          console.log("Successfully added index on equifax_consumers(user_id)");
+        } catch (error) {
+          console.log("Failed to add index on equifax_consumers(user_id)");
+          console.log(error);
         }
 
         const createEquifaxGrantsTable = {
@@ -148,7 +202,7 @@ class ParcelClient {
     return noError;
   };
 
-  private getDocumentById = async (id: string) => {
+  public getDocumentById = async (id: string) => {
     const download = this.parcel.downloadDocument(id as DocumentId);
     const tempFileName = `${env.STORAGE_TEMP_ROOT}/${uuidv4()}-${id}.json`;
     const saveLocation = fs.createWriteStream(tempFileName);
@@ -177,6 +231,15 @@ class ParcelClient {
   public getParcelId = async function () {
     const myIdentity = await this.parcel.getCurrentIdentity();
     return myIdentity.id;
+  };
+
+  public getUserData = async function () {
+    const userData = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
+      sql: "SELECT * FROM equifax_consumers;",
+      params: {},
+    });
+
+    return userData;
   };
 
   private uploadSampleDocument = async function () {
@@ -230,32 +293,38 @@ class ParcelClient {
   };
 
   public insertEquifaxConsumer = async (
-    $address_current: [EquifaxAddress] | null,
-    $address_previous: [EquifaxAddress] | null,
-    $dob: string,
-    $email: string | null,
-    $first_name: string,
-    $home_phone: string | null,
-    $instatouch_id: string | null,
-    $last_name: string | null,
-    $mobile: string | null,
-    $ssn: string | null
+    consumerIdentity: EquifaxConsumerIdentity
   ) => {
-    const $id = uuidv4();
     const $created = new Date();
     const $updated = $created;
     const $revoked = null;
 
-    const $addresses_current = {
-      $addresses: $address_current,
-    };
+    let $addresses_current: EquifaxConsumerIdentityAddress[] = [];
+    let $addresses_previous: EquifaxConsumerIdentityAddress[] = [];
 
-    const $addresses_previous = {
-      $addresses: $address_previous,
-    };
+    if (Array.isArray(consumerIdentity.addresses)) {
+      for (let a = 0; a < consumerIdentity.addresses.length; a++) {
+        const address = consumerIdentity.addresses[a];
+        if (address.type === EquifaxCurrentDesignator.CURRENT) {
+          $addresses_current.push(address);
+        } else {
+          $addresses_previous.push(address);
+        }
+      }
+    }
+
+    const $id = consumerIdentity.id;
+    const $dob = consumerIdentity.identification.dob;
+    const $first_name = consumerIdentity.name.firstName;
+    const $last_name = consumerIdentity.name.lastName;
+    const $ssn = consumerIdentity.identification.ssn;
+    const $email = consumerIdentity.contact.emailAddress;
+    const $mobile = consumerIdentity.contact.mobile;
+    const $home_phone = consumerIdentity.contact.homePhone;
+    const $user_id = "00000000-0000-0000-0000-000000000000";
 
     let insertStatement = {
-      sql: "INSERT INTO equifax_consumers VALUES ($id, instatouch_id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $addresses_current, $addresses_previous, $email, $mobile, $home_phone)",
+      sql: "INSERT INTO equifax_consumers VALUES ($user_id, $id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $addresses_current, $addresses_previous, $email, $mobile, $home_phone)",
       params: {
         $addresses_current,
         $addresses_previous,
@@ -265,19 +334,28 @@ class ParcelClient {
         $first_name,
         $home_phone,
         $id,
-        $instatouch_id,
         $last_name,
         $mobile,
         $revoked,
         $ssn,
         $updated,
+        $user_id,
       },
     };
 
-    const result = await this.parcel.queryDatabase(
-      env.PARCEL_DATABASE_ID as DatabaseId,
-      insertStatement
-    );
+    try {
+      const result = await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        insertStatement
+      );
+
+      return result;
+    } catch (error) {
+      console.log(
+        "Unable to insert equifax consumer.  See following error message for more guidance."
+      );
+      console.log(error);
+    }
   };
 }
 

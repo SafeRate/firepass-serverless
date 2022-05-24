@@ -69,6 +69,7 @@ export type Query = {
   getInstaTouchIdSession?: Maybe<InstaTouchIdHandshake>;
   getOneView?: Maybe<Scalars['String']>;
   getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
+  getUserData?: Maybe<Scalars['String']>;
   helloWorld?: Maybe<Scalars['String']>;
 };
 
@@ -210,6 +211,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getInstaTouchIdSession?: Resolver<Maybe<ResolversTypes['InstaTouchIdHandshake']>, ParentType, ContextType>;
   getOneView?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
+  getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 

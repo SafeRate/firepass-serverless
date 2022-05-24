@@ -17,6 +17,7 @@ type Query {
   getInstaTouchIdSession: InstaTouchIdHandshake
   getOneView: String
   getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
+  getUserData: String
   helloWorld: String
 }
 
