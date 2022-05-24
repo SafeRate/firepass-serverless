@@ -132,7 +132,6 @@ class ParcelClient {
   public insertEquifaxConsumer = async function (
     $address_current: [EquifaxAddress] | null,
     $address_previous: [EquifaxAddress] | null,
-    $application_id: string | null,
     $dob: string,
     $email: string | null,
     $first_name: string,
@@ -156,11 +155,10 @@ class ParcelClient {
     };
 
     let insertStatement = {
-      sql: "INSERT INTO equifax_consumers VALUES ($id, $application_id, $instatouch_id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $address_current, $addresses_previous, $email, $mobile, $home_phone)",
+      sql: "INSERT INTO equifax_consumers VALUES ($id, instatouch_id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $addresses_current, $addresses_previous, $email, $mobile, $home_phone)",
       params: {
         $addresses_current,
         $addresses_previous,
-        $application_id,
         $created,
         $dob,
         $email,
