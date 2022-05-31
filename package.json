@@ -24,10 +24,13 @@
     "org": "saferate"
   },
   "dependencies": {
+    "@hashgraph/sdk": "^2.14.2",
     "@oasislabs/parcel": "^1.0.0-beta.21",
+    "@slack/webhook": "^6.1.0",
     "@types/uuid": "^8.3.4",
     "apollo-server-express": "^3.7.0",
     "axios": "^0.27.2",
+    "decimal.js": "^10.3.1",
     "express": "^4.18.1",
     "form-data": "^4.0.0",
     "graphql": "^16.5.0",
@@ -35,6 +38,8 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.1.1",
     "lodash": "^4.17.21",
-    "qs": "^6.10.3"
+    "plaid": "^10.4.0",
+    "qs": "^6.10.3",
+    "stripe": "^9.5.0"
   }
 }
