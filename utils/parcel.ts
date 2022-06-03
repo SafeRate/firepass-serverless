@@ -14,6 +14,25 @@ import {
   EquifaxCurrentDesignator,
 } from "./equifax";
 import { Consumer } from "../types/resolverTypes";
+import { BankAccountFull } from "../types/bankAccountFull";
+
+type ParcelBankAccount = {
+  account_access_token: string;
+  account_access_customer_id: string;
+  balance: number;
+  created: string;
+  id: string;
+  institution: string;
+  institution_id: string;
+  mask: string;
+  name: string;
+  payment_access_token: string;
+  payment_customer_id: string;
+  subtype: string;
+  type: string;
+  updated: string;
+  user_id: string;
+};
 
 type ParcelEquifaxConsumer = {
   addresses_current: EquifaxConsumerIdentityAddress[];
@@ -32,7 +51,7 @@ type ParcelEquifaxConsumer = {
   user_id: string;
 };
 
-class ParcelClient {
+export class ParcelClient {
   parcel: Parcel;
   constructor() {
     this.parcel = new Parcel({
@@ -238,21 +257,29 @@ class ParcelClient {
     return noError;
   };
 
-  public getBankAccountById = async (bankAccountId: string) => {
+  public getBankAccountById = async (
+    bankAccountId: string
+  ): Promise<BankAccountFull> => {
+    let result: BankAccountFull = null;
+
     const query = {
       sql: `SELECT id, user_id, created, updated, institution, institution_id, name, mask, type, subtype, account_access_token, account_access_customer_id, payment_access_token, payment_customer_id, balance FROM bank_accounts WHERE id = $id;`,
       params: { $id: bankAccountId },
     };
 
     try {
-      const result = await this.parcel.queryDatabase(
+      let parcelResult = await this.parcel.queryDatabase(
         env.PARCEL_DATABASE_ID as DatabaseId,
         query
       );
+
+      result = this.parseBankAccount(parcelResult as ParcelBankAccount[]);
     } catch (error) {
       console.log(error);
       throw error;
     }
+
+    return result;
   };
 
   public getDocumentById = async (id: string) => {
@@ -318,31 +345,59 @@ class ParcelClient {
     return document;
   };
 
-  public insertUser = async (
-    $company_id: string,
-    $email: string,
-    $mobile: string
-  ) => {
-    const $id = uuidv4();
+  public insertBankAccount = async (bankAccount: BankAccountFull) => {
     const $created = new Date();
     const $updated = $created;
 
+    const $id = uuidv4();
+
+    const $account_access_token = bankAccount.accountAccessToken;
+    const $account_access_customer_id = bankAccount.accountAccessCustomerId;
+    const $balance = bankAccount.bankAccount.balance;
+    const $institution = bankAccount.institution;
+    const $institution_id = bankAccount.institutionId;
+    const $name = bankAccount.bankAccount.name;
+    const $mask = bankAccount.bankAccount.mask;
+    const $payment_access_token = bankAccount.paymentAccessToken;
+    const $payment_customer_id = bankAccount.paymentCustomerId;
+    const $subtype = bankAccount.bankAccount.subtype;
+    const $type = bankAccount.bankAccount.type;
+    const $user_id = uuidv4();
+
     let insertStatement = {
-      sql: "INSERT INTO users VALUES ($id, $created, $updated, $company_id, $email, $mobile)",
+      sql: "INSERT INTO bank_accounts VALUES ($id, $user_id, $created, $updated, $institution, $institution_id, $name, $mask, $type, $subtype, $account_access_token, $account_access_customer_id, $payment_access_token, $payment_customer_id, $balance)",
       params: {
-        $id,
+        $account_access_token,
+        $account_access_customer_id,
+        $balance,
         $created,
+        $id,
+        $institution,
+        $institution_id,
+        $name,
+        $mask,
+        $payment_access_token,
+        $payment_customer_id,
+        $subtype,
+        $type,
         $updated,
-        $company_id,
-        $email,
-        $mobile,
+        $user_id,
       },
     };
 
-    const result = await this.parcel.queryDatabase(
-      env.PARCEL_DATABASE_ID as DatabaseId,
-      insertStatement
-    );
+    try {
+      const result = await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        insertStatement
+      );
+
+      return result;
+    } catch (error) {
+      console.log(
+        "Unable to insert bank account.  See following error message for more guidance."
+      );
+      console.log(error);
+    }
   };
 
   public insertEquifaxConsumer = async (
@@ -411,6 +466,33 @@ class ParcelClient {
     }
   };
 
+  public insertUser = async (
+    $company_id: string,
+    $email: string,
+    $mobile: string
+  ) => {
+    const $id = uuidv4();
+    const $created = new Date();
+    const $updated = $created;
+
+    let insertStatement = {
+      sql: "INSERT INTO users VALUES ($id, $created, $updated, $company_id, $email, $mobile)",
+      params: {
+        $id,
+        $created,
+        $updated,
+        $company_id,
+        $email,
+        $mobile,
+      },
+    };
+
+    const result = await this.parcel.queryDatabase(
+      env.PARCEL_DATABASE_ID as DatabaseId,
+      insertStatement
+    );
+  };
+
   public getEquifaxConsumer = async (userId: string): Promise<Consumer> => {
     const selectStatement = {
       sql: `SELECT ssn, dob, first_name, last_name, addresses_current, addresses_previous, email, mobile, home_phone FROM equifax_consumers WHERE user_id = $user_id;`,
@@ -423,6 +505,57 @@ class ParcelClient {
     );
 
     return this.parseEquifaxConsumer(results as ParcelEquifaxConsumer[]);
+  };
+
+  private parseBankAccount = (
+    bankAccount: ParcelBankAccount[] | ParcelBankAccount
+  ): BankAccountFull => {
+    if (!bankAccount) {
+      return null;
+    }
+
+    if (Array.isArray(bankAccount)) {
+      if (bankAccount.length > 0) {
+        bankAccount = bankAccount[0];
+      } else {
+        return null;
+      }
+    }
+
+    let returnObj: BankAccountFull = {
+      accountAccessCustomerId: bankAccount.account_access_customer_id,
+      accountAccessToken: bankAccount.account_access_token,
+      bankAccount: {
+        balance: bankAccount.balance,
+        id: bankAccount.id,
+        mask: bankAccount.mask,
+        name: bankAccount.name,
+        subtype: bankAccount.subtype,
+        type: bankAccount.type,
+      },
+      created: bankAccount.created,
+      institution: bankAccount.institution,
+      institutionId: bankAccount.institution_id,
+      paymentAccessToken: bankAccount.payment_access_token,
+      paymentCustomerId: bankAccount.payment_customer_id,
+      updated: bankAccount.updated,
+    };
+
+    return returnObj;
+  };
+
+  private parseBankAccounts = (
+    results: ParcelBankAccount[]
+  ): BankAccountFull[] => {
+    let returnArr: BankAccountFull[] = [];
+
+    if (Array.isArray(results) && results.length) {
+      for (let r = 0; r < results.length; r++) {
+        returnArr.push(this.parseBankAccount(results[r]));
+      }
+    }
+
+    return returnArr;
   };
 
   private parseEquifaxConsumers = (

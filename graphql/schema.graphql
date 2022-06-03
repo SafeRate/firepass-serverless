@@ -1,15 +1,22 @@
 scalar Date
 scalar DateTime
 
-type InstaTouchIdHandshake {
-  sessionId: String!
-  instaTouch: String!
-  carrier: String
+type BankAccount {
+  balance: Float!
+  id: ID
+  name: String
+  mask: String
+  subtype: String
+  type: String
 }
 
-type OtpPasscode {
-  sessionId: String!
-  transactionKey: String!
+type Consumer {
+  id: ID
+  name: ConsumerName
+  currentAddresses: [ConsumerAddress]
+  previousAddresses: [ConsumerAddress]
+  identification: ConsumerIdentification
+  contact: ConsumerContact
 }
 
 type ConsumerName {
@@ -35,13 +42,15 @@ type ConsumerContact {
   mobile: String
 }
 
-type Consumer {
-  id: ID
-  name: ConsumerName
-  currentAddresses: [ConsumerAddress]
-  previousAddresses: [ConsumerAddress]
-  identification: ConsumerIdentification
-  contact: ConsumerContact
+type InstaTouchIdHandshake {
+  sessionId: String!
+  instaTouch: String!
+  carrier: String
+}
+
+type OtpPasscode {
+  sessionId: String!
+  transactionKey: String!
 }
 
 type Query {

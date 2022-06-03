@@ -17,6 +17,16 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type BankAccount = {
+  __typename?: 'BankAccount';
+  balance: Scalars['Float'];
+  id?: Maybe<Scalars['ID']>;
+  mask?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  subtype?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+};
+
 export type Consumer = {
   __typename?: 'Consumer';
   contact?: Maybe<ConsumerContact>;
@@ -105,6 +115,7 @@ export type Query = {
   getDocumentById?: Maybe<Scalars['String']>;
   getInstaTouchIdSession?: Maybe<InstaTouchIdHandshake>;
   getOneView?: Maybe<Scalars['String']>;
+  getPlaidLinkToken?: Maybe<Scalars['String']>;
   getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
   getUserData?: Maybe<Scalars['String']>;
   helloWorld?: Maybe<Scalars['String']>;
@@ -112,6 +123,11 @@ export type Query = {
 
 
 export type QueryGetDocumentByIdArgs = {
+  id?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type QueryGetPlaidLinkTokenArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
 
@@ -191,6 +207,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  BankAccount: ResolverTypeWrapper<BankAccount>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Consumer: ResolverTypeWrapper<Consumer>;
   ConsumerAddress: ResolverTypeWrapper<ConsumerAddress>;
@@ -199,6 +216,7 @@ export type ResolversTypes = ResolversObject<{
   ConsumerName: ResolverTypeWrapper<ConsumerName>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   InstaTouchIdHandshake: ResolverTypeWrapper<InstaTouchIdHandshake>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -209,6 +227,7 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  BankAccount: BankAccount;
   Boolean: Scalars['Boolean'];
   Consumer: Consumer;
   ConsumerAddress: ConsumerAddress;
@@ -217,12 +236,23 @@ export type ResolversParentTypes = ResolversObject<{
   ConsumerName: ConsumerName;
   Date: Scalars['Date'];
   DateTime: Scalars['DateTime'];
+  Float: Scalars['Float'];
   ID: Scalars['ID'];
   InstaTouchIdHandshake: InstaTouchIdHandshake;
   Mutation: {};
   OtpPasscode: OtpPasscode;
   Query: {};
   String: Scalars['String'];
+}>;
+
+export type BankAccountResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BankAccount'] = ResolversParentTypes['BankAccount']> = ResolversObject<{
+  balance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  mask?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subtype?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ConsumerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Consumer'] = ResolversParentTypes['Consumer']> = ResolversObject<{
@@ -294,12 +324,14 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getDocumentById?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetDocumentByIdArgs>>;
   getInstaTouchIdSession?: Resolver<Maybe<ResolversTypes['InstaTouchIdHandshake']>, ParentType, ContextType>;
   getOneView?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  getPlaidLinkToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetPlaidLinkTokenArgs>>;
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
   getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  BankAccount?: BankAccountResolvers<ContextType>;
   Consumer?: ConsumerResolvers<ContextType>;
   ConsumerAddress?: ConsumerAddressResolvers<ContextType>;
   ConsumerContact?: ConsumerContactResolvers<ContextType>;
