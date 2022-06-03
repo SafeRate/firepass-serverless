@@ -13,6 +13,24 @@ import {
   EquifaxConsumerIdentityAddress,
   EquifaxCurrentDesignator,
 } from "./equifax";
+import { Consumer } from "../types/resolverTypes";
+
+type ParcelEquifaxConsumer = {
+  addresses_current: EquifaxConsumerIdentityAddress[];
+  addresses_previous: EquifaxConsumerIdentityAddress[];
+  created: string;
+  dob: string;
+  email: string;
+  first_name: string;
+  home_phone: string;
+  id: string;
+  last_name: string;
+  mobile: string;
+  revoked: boolean;
+  ssn: string;
+  updated: string;
+  user_id: string;
+};
 
 class ParcelClient {
   parcel: Parcel;
@@ -194,12 +212,47 @@ class ParcelClient {
     }
 
     if (plaid) {
+      const createBankAccountsTable = {
+        sql: `CREATE TABLE bank_accounts(id TEXT, user_id TEXT, created DATETIME, updated DATETIME, institution TEXT, institution_id TEXT, name TEXT, mask TEXT, type TEXT, subtype TEXT, account_access_token TEXT, account_access_customer_id TEXT, payment_access_token TEXT, payment_customer_id TEXT, balance REAL);`,
+        params: {},
+      };
+
+      try {
+        const createBankAccountsResult = await this.parcel.queryDatabase(
+          databaseId as DatabaseId,
+          createBankAccountsTable
+        );
+
+        console.log("Sucessfully created bank accounts table!");
+        console.log(createBankAccountsResult);
+      } catch (error) {
+        console.log("Failed to create bank accounts table!");
+        console.log(error);
+        noError = false;
+      }
     }
 
     if (stripe) {
     }
 
     return noError;
+  };
+
+  public getBankAccountById = async (bankAccountId: string) => {
+    const query = {
+      sql: `SELECT id, user_id, created, updated, institution, institution_id, name, mask, type, subtype, account_access_token, account_access_customer_id, payment_access_token, payment_customer_id, balance FROM bank_accounts WHERE id = $id;`,
+      params: { $id: bankAccountId },
+    };
+
+    try {
+      const result = await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        query
+      );
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   };
 
   public getDocumentById = async (id: string) => {
@@ -321,7 +374,7 @@ class ParcelClient {
     const $email = consumerIdentity.contact.emailAddress;
     const $mobile = consumerIdentity.contact.mobile;
     const $home_phone = consumerIdentity.contact.homePhone;
-    const $user_id = "00000000-0000-0000-0000-000000000000";
+    const $user_id = uuidv4();
 
     let insertStatement = {
       sql: "INSERT INTO equifax_consumers VALUES ($user_id, $id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $addresses_current, $addresses_previous, $email, $mobile, $home_phone)",
@@ -356,6 +409,71 @@ class ParcelClient {
       );
       console.log(error);
     }
+  };
+
+  public getEquifaxConsumer = async (userId: string): Promise<Consumer> => {
+    const selectStatement = {
+      sql: `SELECT ssn, dob, first_name, last_name, addresses_current, addresses_previous, email, mobile, home_phone FROM equifax_consumers WHERE user_id = $user_id;`,
+      params: { $user_id: userId },
+    };
+
+    const results = await this.parcel.queryDatabase(
+      env.PARCEL_DATABASE_ID as DatabaseId,
+      selectStatement
+    );
+
+    return this.parseEquifaxConsumer(results as ParcelEquifaxConsumer[]);
+  };
+
+  private parseEquifaxConsumers = (
+    results: ParcelEquifaxConsumer[]
+  ): Consumer[] => {
+    let returnArr: Consumer[] = [];
+
+    if (Array.isArray(results) && results.length) {
+      for (let r = 0; r < results.length; r++) {
+        returnArr.push(this.parseEquifaxConsumer(results[r]));
+      }
+    }
+
+    return returnArr;
+  };
+
+  private parseEquifaxConsumer = (
+    peConsumer: ParcelEquifaxConsumer[] | ParcelEquifaxConsumer
+  ): Consumer => {
+    if (!peConsumer) {
+      return null;
+    }
+
+    if (Array.isArray(peConsumer)) {
+      if (peConsumer.length > 0) {
+        peConsumer = peConsumer[0];
+      } else {
+        return null;
+      }
+    }
+
+    let returnObj: Consumer = {
+      contact: {
+        emailAddress: peConsumer.email,
+        homePhone: peConsumer.home_phone,
+        mobile: peConsumer.mobile,
+      },
+      currentAddresses: peConsumer.addresses_current,
+      id: peConsumer.user_id,
+      identification: {
+        dob: peConsumer.dob,
+        ssn: peConsumer.ssn,
+      },
+      name: {
+        firstName: peConsumer.first_name,
+        lastName: peConsumer.last_name,
+      },
+      previousAddresses: peConsumer.addresses_previous,
+    };
+
+    return returnObj;
   };
 }
 

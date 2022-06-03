@@ -26,8 +26,9 @@ export const completeInstaTouchIdOtp: MutationResolvers["completeInstaTouchIdOtp
         consumerIdentity
       );
 
+      console.log(`insertResult`);
       console.log(insertResult);
     }
 
-    return true;
+    return null;
   };
