@@ -12,10 +12,43 @@ type OtpPasscode {
   transactionKey: String!
 }
 
+type ConsumerName {
+  firstName: String
+  lastName: String
+}
+
+type ConsumerAddress {
+  streetAddress: String
+  city: String
+  state: String
+  zipcode: String
+}
+
+type ConsumerIdentification {
+  ssn: String
+  dob: String
+}
+
+type ConsumerContact {
+  emailAddress: String
+  homePhone: String
+  mobile: String
+}
+
+type Consumer {
+  id: ID
+  name: ConsumerName
+  currentAddresses: [ConsumerAddress]
+  previousAddresses: [ConsumerAddress]
+  identification: ConsumerIdentification
+  contact: ConsumerContact
+}
+
 type Query {
   getDocumentById(id: ID): String
   getInstaTouchIdSession: InstaTouchIdHandshake
   getOneView: String
+  getPlaidLinkToken(id: ID): String
   getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
   getUserData: String
   helloWorld: String
@@ -26,7 +59,7 @@ type Mutation {
     sessionId: String!
     zipCode: String!
     SSN: String!
-  ): Boolean
+  ): Consumer
   completeInstaTouchIdOtp(
     mobileNumber: String!
     passcode: String!
@@ -34,7 +67,7 @@ type Mutation {
     transactionKey: String!
     zipCode: String!
     SSN: String!
-  ): Boolean
+  ): Consumer
 
   createDatabase(
     users: Boolean!

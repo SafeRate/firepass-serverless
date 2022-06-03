@@ -17,6 +17,43 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type Consumer = {
+  __typename?: 'Consumer';
+  contact?: Maybe<ConsumerContact>;
+  currentAddresses?: Maybe<Array<Maybe<ConsumerAddress>>>;
+  id?: Maybe<Scalars['ID']>;
+  identification?: Maybe<ConsumerIdentification>;
+  name?: Maybe<ConsumerName>;
+  previousAddresses?: Maybe<Array<Maybe<ConsumerAddress>>>;
+};
+
+export type ConsumerAddress = {
+  __typename?: 'ConsumerAddress';
+  city?: Maybe<Scalars['String']>;
+  state?: Maybe<Scalars['String']>;
+  streetAddress?: Maybe<Scalars['String']>;
+  zipcode?: Maybe<Scalars['String']>;
+};
+
+export type ConsumerContact = {
+  __typename?: 'ConsumerContact';
+  emailAddress?: Maybe<Scalars['String']>;
+  homePhone?: Maybe<Scalars['String']>;
+  mobile?: Maybe<Scalars['String']>;
+};
+
+export type ConsumerIdentification = {
+  __typename?: 'ConsumerIdentification';
+  dob?: Maybe<Scalars['String']>;
+  ssn?: Maybe<Scalars['String']>;
+};
+
+export type ConsumerName = {
+  __typename?: 'ConsumerName';
+  firstName?: Maybe<Scalars['String']>;
+  lastName?: Maybe<Scalars['String']>;
+};
+
 export type InstaTouchIdHandshake = {
   __typename?: 'InstaTouchIdHandshake';
   carrier?: Maybe<Scalars['String']>;
@@ -26,8 +63,8 @@ export type InstaTouchIdHandshake = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  completeInstaTouchIdMobile?: Maybe<Scalars['Boolean']>;
-  completeInstaTouchIdOtp?: Maybe<Scalars['Boolean']>;
+  completeInstaTouchIdMobile?: Maybe<Consumer>;
+  completeInstaTouchIdOtp?: Maybe<Consumer>;
   createDatabase?: Maybe<Scalars['Boolean']>;
   helloWorldMutate?: Maybe<Scalars['String']>;
 };
@@ -155,6 +192,11 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Consumer: ResolverTypeWrapper<Consumer>;
+  ConsumerAddress: ResolverTypeWrapper<ConsumerAddress>;
+  ConsumerContact: ResolverTypeWrapper<ConsumerContact>;
+  ConsumerIdentification: ResolverTypeWrapper<ConsumerIdentification>;
+  ConsumerName: ResolverTypeWrapper<ConsumerName>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -168,6 +210,11 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
+  Consumer: Consumer;
+  ConsumerAddress: ConsumerAddress;
+  ConsumerContact: ConsumerContact;
+  ConsumerIdentification: ConsumerIdentification;
+  ConsumerName: ConsumerName;
   Date: Scalars['Date'];
   DateTime: Scalars['DateTime'];
   ID: Scalars['ID'];
@@ -176,6 +223,43 @@ export type ResolversParentTypes = ResolversObject<{
   OtpPasscode: OtpPasscode;
   Query: {};
   String: Scalars['String'];
+}>;
+
+export type ConsumerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Consumer'] = ResolversParentTypes['Consumer']> = ResolversObject<{
+  contact?: Resolver<Maybe<ResolversTypes['ConsumerContact']>, ParentType, ContextType>;
+  currentAddresses?: Resolver<Maybe<Array<Maybe<ResolversTypes['ConsumerAddress']>>>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  identification?: Resolver<Maybe<ResolversTypes['ConsumerIdentification']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['ConsumerName']>, ParentType, ContextType>;
+  previousAddresses?: Resolver<Maybe<Array<Maybe<ResolversTypes['ConsumerAddress']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ConsumerAddressResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ConsumerAddress'] = ResolversParentTypes['ConsumerAddress']> = ResolversObject<{
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  streetAddress?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  zipcode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ConsumerContactResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ConsumerContact'] = ResolversParentTypes['ConsumerContact']> = ResolversObject<{
+  emailAddress?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  homePhone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  mobile?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ConsumerIdentificationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ConsumerIdentification'] = ResolversParentTypes['ConsumerIdentification']> = ResolversObject<{
+  dob?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ssn?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ConsumerNameResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ConsumerName'] = ResolversParentTypes['ConsumerName']> = ResolversObject<{
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -194,8 +278,8 @@ export type InstaTouchIdHandshakeResolvers<ContextType = Context, ParentType ext
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
-  completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
+  completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
+  completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
   createDatabase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCreateDatabaseArgs, 'equifax' | 'plaid' | 'stripe' | 'users'>>;
   helloWorldMutate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
@@ -216,6 +300,11 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  Consumer?: ConsumerResolvers<ContextType>;
+  ConsumerAddress?: ConsumerAddressResolvers<ContextType>;
+  ConsumerContact?: ConsumerContactResolvers<ContextType>;
+  ConsumerIdentification?: ConsumerIdentificationResolvers<ContextType>;
+  ConsumerName?: ConsumerNameResolvers<ContextType>;
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
   InstaTouchIdHandshake?: InstaTouchIdHandshakeResolvers<ContextType>;
