@@ -21,6 +21,7 @@ class ServerlessCloudApollo extends ApolloServer {
       resolvers,
       csrfPrevention: true,
       context: ({ req }) => {
+        console.log('req.get("Authorization")', req.get("Authorization"));
         return { ...createContext(), ip: req.ip };
       },
       formatError: (error) => {
@@ -32,7 +33,12 @@ class ServerlessCloudApollo extends ApolloServer {
     });
 
     await server.ensureStarted();
-    api.use(server.getMiddleware({ path: "/graphql" }));
+    api.use(
+      server.getMiddleware({
+        path: "/graphql",
+        cors: { credentials: true, origin: "http://localhost:3000" },
+      })
+    );
   } catch (error) {
     throw new Error(error);
   }
