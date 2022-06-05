@@ -16,7 +16,7 @@ import {
 import { Consumer } from "../types/resolverTypes";
 import { BankAccountFull } from "../types/bankAccountFull";
 
-type ParcelBankAccount = {
+export type ParcelBankAccount = {
   account_access_token: string;
   account_access_customer_id: string;
   balance: number;
@@ -274,6 +274,31 @@ export class ParcelClient {
       );
 
       result = this.parseBankAccount(parcelResult as ParcelBankAccount[]);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+
+    return result;
+  };
+
+  public getBankAccountsForUser = async (
+    userId: string
+  ): Promise<BankAccountFull[]> => {
+    let result: BankAccountFull[] = [];
+
+    const query = {
+      sql: `SELECT id, user_id, created, updated, institution, institution_id, name, mask, type, subtype, account_access_token, account_access_customer_id, payment_access_token, payment_customer_id, balance FROM bank_accounts WHERE user_id = $userId;`,
+      params: { $userId: userId },
+    };
+
+    try {
+      let parcelResult = await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        query
+      );
+
+      result = this.parseBankAccounts(parcelResult as ParcelBankAccount[]);
     } catch (error) {
       console.log(error);
       throw error;

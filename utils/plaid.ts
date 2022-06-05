@@ -1,4 +1,5 @@
 import {
+  AccountType,
   Configuration,
   CountryCode,
   DepositoryAccountSubtype,
@@ -7,7 +8,8 @@ import {
   Products,
 } from "plaid";
 import { BankAccountFull } from "../types/bankAccountFull";
-import { ParcelClient } from "./parcel";
+import { parcelClient, ParcelClient } from "./parcel";
+import { precisionAdd } from "./precisionMath";
 
 export enum PLAID_ACCOUNT_SUBTYPES {
   CHECKING = "checking",
@@ -119,6 +121,49 @@ export class PlaidClient {
 
     return null;
   };
+
+  // export async function exchangePublicTokenForAccessToken({
+  //   provider,
+  //   permissions,
+  //   publicToken,
+  // }) {
+  //   const _FUNCTION_NAME = "exchangePublicTokenForAccessToken";
+  //   const result = {
+  //     success: false,
+  //     accessToken: null,
+  //     itemId: null,
+  //     message: null,
+  //   };
+
+  //   if (permissions.borrowerId) {
+  //     try {
+  //       const response = await plaidClient.itemPublicTokenExchange({
+  //         public_token: publicToken,
+  //       });
+
+  //       console.log("token exchange!");
+  //       console.log(response.data);
+
+  //       const accessToken = response.data.access_token;
+  //       const itemId = response.data.item_id;
+
+  //       if (accessToken && itemId) {
+  //         result.success = true;
+  //         result.accessToken = accessToken;
+  //         result.accountId = itemId;
+  //       }
+  //     } catch (error) {
+  //       throw new SafeRateError(
+  //         "Unable to obtain Plaid access token: " + error.message,
+  //         {
+  //           efn: _FUNCTION_NAME,
+  //         }
+  //       );
+  //     }
+  //   }
+
+  //   return result;
+  // }
 
   public getLinkToken = async (
     userId: string,
@@ -269,81 +314,50 @@ export class PlaidClient {
   //   return processorToken;
   // }
 
-  // public createStripeTokenFromAccessToken = async(
-  //   accessToken,
-  //   plaidId,
-  // ) => {
+  public getAggregateBalancesForUser = async (
+    userId: string,
+    parcelClient: ParcelClient
+  ): Promise<number> => {
+    let aggregateBalance = 0;
 
-  //     try {
-  //       const request = {
-  //         access_token: accessToken,
-  //         account_id: plaidId,
-  //       };
+    const bankAccounts: BankAccountFull[] =
+      await parcelClient.getBankAccountsForUser(userId);
 
-  //       const stripeTokenResponse = processPlaidResponse(
-  //         await this.plaidApi.processorStripeBankAccountTokenCreate(request)
-  //       );
+    try {
+      for (let ba = 0; ba < bankAccounts.length; ba++) {
+        const accessToken = bankAccounts[ba].accountAccessToken;
+        const request = {
+          access_token: accessToken,
+        };
 
-  //       if (stripeTokenResponse) {
-  //         bankAccountToken = stripeTokenResponse.stripe_bank_account_token;
-  //       }
-  //     } catch (error) {
-  //       console.log("Error!");
-  //       console.log(error);
+        const response = await this.plaidApi.accountsBalanceGet(request);
+        const accounts = response.data.accounts;
+        for (let a = 0; a < accounts.length; a++) {
+          const account = accounts[a];
+          const { balances, type } = account;
 
-  //       throw new Error(
-  //         "Unable to create Stripe token: " + error.message,
-  //         {
-  //           efn: _FUNCTION_NAME,
-  //         }
-  //       );
-  //     }
-  //   }
+          if (balances && type) {
+            if (type === AccountType.Depository || AccountType.Investment) {
+              if (balances.current) {
+                if (balances.current > 0) {
+                  aggregateBalance = precisionAdd(
+                    [aggregateBalance, balances.current],
+                    2,
+                    2
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      aggregateBalance = null;
+    }
 
-  //   return bankAccountToken;
-  // }
-
-  // public getAggregateBalances = async(
-  //   accessTokens,
-  // ) => {
-  //   let aggregateBalance = 0;
-
-  //   try {
-  //     for (let at = 0; at < accessTokens.length; at++) {
-  //       const accessToken = accessTokens[at];
-
-  //       const request = {
-  //         access_token: accessToken,
-  //       };
-
-  //       const response = await this.plaidApi.accountsBalanceGet(request);
-  //       const accounts = response.data.accounts;
-  //       for (let a = 0; a < accounts.length; a++) {
-  //         const account = accounts[a];
-  //         const { balances, type } = account;
-
-  //         if (balances && type) {
-  //           if (type === PLAID_ACCOUNT_TYPE.DEPOSITORY || type === PLAID_ACCOUNT_TYPE.INVESTMENT) {
-  //             if (balances.current) {
-  //               if (balances.current > 0) {
-  //                 aggregateBalance = precisionAdd({
-  //                   values: [aggregateBalance, balances.current],
-  //                   precision: 2,
-  //                   stepPrecision: 2,
-  //                 });
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     aggregateBalance = null;
-  //   }
-
-  //   return aggregateBalance;
-  // }
+    return aggregateBalance;
+  };
 }
 
 export const plaidClient = new PlaidClient();
