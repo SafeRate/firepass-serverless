@@ -65,7 +65,7 @@ type Query {
 }
 
 type Mutation {
-  addBorrowerBankAccountsViaPlaid(plaidId: ID, plaidObj: JSON): [BankAccount]
+  addBankAccountsViaPlaid(plaidId: ID, plaidObj: JSON): [BankAccount]
   completeInstaTouchIdMobile(
     sessionId: String!
     zipCode: String!

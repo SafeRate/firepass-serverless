@@ -123,48 +123,26 @@ export class PlaidClient {
     return null;
   };
 
-  // export async function exchangePublicTokenForAccessToken({
-  //   provider,
-  //   permissions,
-  //   publicToken,
-  // }) {
-  //   const _FUNCTION_NAME = "exchangePublicTokenForAccessToken";
-  //   const result = {
-  //     success: false,
-  //     accessToken: null,
-  //     itemId: null,
-  //     message: null,
-  //   };
+  public exchangePublicTokenForAccessToken = async (
+    publicToken: string
+  ): Promise<string> => {
+    let accessToken: string = null;
 
-  //   if (permissions.borrowerId) {
-  //     try {
-  //       const response = await plaidClient.itemPublicTokenExchange({
-  //         public_token: publicToken,
-  //       });
+    try {
+      const response = await this.plaidApi.itemPublicTokenExchange({
+        public_token: publicToken,
+      });
 
-  //       console.log("token exchange!");
-  //       console.log(response.data);
+      console.log("token exchange!");
+      console.log(response.data);
+      accessToken = response.data.access_token;
+      const itemId = response.data.item_id;
+    } catch (error) {
+      throw error;
+    }
 
-  //       const accessToken = response.data.access_token;
-  //       const itemId = response.data.item_id;
-
-  //       if (accessToken && itemId) {
-  //         result.success = true;
-  //         result.accessToken = accessToken;
-  //         result.accountId = itemId;
-  //       }
-  //     } catch (error) {
-  //       throw new SafeRateError(
-  //         "Unable to obtain Plaid access token: " + error.message,
-  //         {
-  //           efn: _FUNCTION_NAME,
-  //         }
-  //       );
-  //     }
-  //   }
-
-  //   return result;
-  // }
+    return accessToken;
+  };
 
   public getLinkToken = async (
     userId: string,

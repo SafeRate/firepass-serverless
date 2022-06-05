@@ -17,21 +17,21 @@ import { Consumer } from "../types/resolverTypes";
 import { BankAccountFull } from "../types/bankAccountFull";
 
 export type ParcelBankAccount = {
-  account_access_token: string;
-  account_access_customer_id: string;
-  balance: number;
-  created: string;
-  id: string;
-  institution: string;
-  institution_id: string;
-  mask: string;
-  name: string;
-  payment_access_token: string;
-  payment_customer_id: string;
-  subtype: string;
-  type: string;
-  updated: string;
-  user_id: string;
+  account_access_token?: string;
+  account_access_customer_id?: string;
+  balance?: number;
+  created?: string;
+  id?: string;
+  institution?: string;
+  institution_id?: string;
+  mask?: string;
+  name?: string;
+  payment_access_token?: string;
+  payment_customer_id?: string;
+  subtype?: string;
+  type?: string;
+  updated?: string;
+  user_id?: string;
 };
 
 type ParcelEquifaxConsumer = {
