@@ -36,7 +36,10 @@ class ServerlessCloudApollo extends ApolloServer {
     api.use(
       server.getMiddleware({
         path: "/graphql",
-        cors: { credentials: true, origin: "http://localhost:3000" },
+        cors: {
+          credentials: true,
+          origin: ["http://localhost:3000", "https://studio.apollographql.com"],
+        },
       })
     );
   } catch (error) {

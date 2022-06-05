@@ -19,6 +19,10 @@ type Env = {
   PARCEL_CLIENT_ID: string;
   PARCEL_DATABASE_ID: string;
   PARCEL_PRIVATE_KEY: string;
+  PLAID_CLIENT_ID: string;
+  PLAID_ENVIRONMENT: string;
+  PLAID_REDIRECT_URI: string;
+  PLAID_SECRET: string;
   STORAGE_TEMP_ROOT: string;
 };
 

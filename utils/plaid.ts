@@ -8,6 +8,7 @@ import {
   Products,
 } from "plaid";
 import { BankAccountFull } from "../types/bankAccountFull";
+import { env } from "./env";
 import { parcelClient, ParcelClient } from "./parcel";
 import { precisionAdd } from "./precisionMath";
 
@@ -72,11 +73,11 @@ export class PlaidClient {
   constructor() {
     this.plaidEnv = null;
 
-    if (process.env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.DEVELOPMENT) {
+    if (env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.DEVELOPMENT) {
       this.plaidEnv = PlaidEnvironments.development;
-    } else if (process.env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.PRODUCTION) {
+    } else if (env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.PRODUCTION) {
       this.plaidEnv = PlaidEnvironments.production;
-    } else if (process.env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.SANDBOX) {
+    } else if (env.PLAID_ENVIRONMENT === PLAID_ENVIRONMENT.SANDBOX) {
       this.plaidEnv = PlaidEnvironments.sandbox;
     }
 
@@ -84,8 +85,8 @@ export class PlaidClient {
       basePath: this.plaidEnv,
       baseOptions: {
         headers: {
-          "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
-          "PLAID-SECRET": process.env.PLAID_SECRET,
+          "PLAID-CLIENT-ID": env.PLAID_CLIENT_ID,
+          "PLAID-SECRET": env.PLAID_SECRET,
           "Plaid-Version": PLAID_API_VERSION.V2020_09_14,
         },
       },
@@ -198,7 +199,7 @@ export class PlaidClient {
           client_name: PLAID_CLIENT_NAME.SAFE_RATE,
           country_codes: [CountryCode.Us],
           language: PLAID_LANGUAGE.EN,
-          redirect_uri: process.env.PLAID_REDIRECT_URI,
+          redirect_uri: env.PLAID_REDIRECT_URI,
           access_token: accessToken,
         });
       } else {
@@ -210,7 +211,7 @@ export class PlaidClient {
           products: [Products.Auth],
           country_codes: [CountryCode.Us],
           language: PLAID_LANGUAGE.EN,
-          redirect_uri: process.env.PLAID_REDIRECT_URI,
+          redirect_uri: env.PLAID_REDIRECT_URI,
           account_filters: {
             depository: {
               account_subtypes: [
