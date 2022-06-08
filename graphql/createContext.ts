@@ -7,9 +7,9 @@ import { plaidClient } from "../utils/plaid";
 export const createContext = async (req: ExpressContext["req"]) => {
   const { user, scopes } = await getUserAndScopesFromTokens(req);
 
-  if (!user) {
-    throw new Error(`User does not have permission to access the API`);
-  }
+  // if (!user) {
+  //   throw new Error(`User does not have permission to access the API`);
+  // }
 
   return {
     equifaxClient,
