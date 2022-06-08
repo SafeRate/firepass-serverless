@@ -87,5 +87,8 @@ type Mutation {
     plaid: Boolean!
   ): Boolean
 
+  createParcelUser: Boolean
+  deleteParcelUser: Boolean
+
   helloWorldMutate: String
 }

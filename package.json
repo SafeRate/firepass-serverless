@@ -37,7 +37,7 @@
     "graphql-iso-date": "^3.6.1",
     "graphql-type-json": "^0.3.2",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^2.1.1",
+    "jwks-rsa": "^2.1.4",
     "lodash": "^4.17.21",
     "plaid": "^10.4.0",
     "qs": "^6.10.3",

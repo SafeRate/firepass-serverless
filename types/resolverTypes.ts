@@ -15,6 +15,7 @@ export type Scalars = {
   Float: number;
   Date: any;
   DateTime: any;
+  JSON: any;
 };
 
 export type BankAccount = {
@@ -73,10 +74,19 @@ export type InstaTouchIdHandshake = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addBankAccountsViaPlaid?: Maybe<Array<Maybe<BankAccount>>>;
   completeInstaTouchIdMobile?: Maybe<Consumer>;
   completeInstaTouchIdOtp?: Maybe<Consumer>;
   createDatabase?: Maybe<Scalars['Boolean']>;
+  createParcelUser?: Maybe<Scalars['Boolean']>;
+  deleteParcelUser?: Maybe<Scalars['Boolean']>;
   helloWorldMutate?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationAddBankAccountsViaPlaidArgs = {
+  plaidId?: InputMaybe<Scalars['ID']>;
+  plaidObj?: InputMaybe<Scalars['JSON']>;
 };
 
 
@@ -219,6 +229,7 @@ export type ResolversTypes = ResolversObject<{
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   InstaTouchIdHandshake: ResolverTypeWrapper<InstaTouchIdHandshake>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Mutation: ResolverTypeWrapper<{}>;
   OtpPasscode: ResolverTypeWrapper<OtpPasscode>;
   Query: ResolverTypeWrapper<{}>;
@@ -239,6 +250,7 @@ export type ResolversParentTypes = ResolversObject<{
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   InstaTouchIdHandshake: InstaTouchIdHandshake;
+  JSON: Scalars['JSON'];
   Mutation: {};
   OtpPasscode: OtpPasscode;
   Query: {};
@@ -307,10 +319,17 @@ export type InstaTouchIdHandshakeResolvers<ContextType = Context, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  addBankAccountsViaPlaid?: Resolver<Maybe<Array<Maybe<ResolversTypes['BankAccount']>>>, ParentType, ContextType, Partial<MutationAddBankAccountsViaPlaidArgs>>;
   completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
   completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
   createDatabase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCreateDatabaseArgs, 'equifax' | 'plaid' | 'stripe' | 'users'>>;
+  createParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  deleteParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   helloWorldMutate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
@@ -340,6 +359,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
   InstaTouchIdHandshake?: InstaTouchIdHandshakeResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   OtpPasscode?: OtpPasscodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

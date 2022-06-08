@@ -20,9 +20,10 @@ class ServerlessCloudApollo extends ApolloServer {
       typeDefs,
       resolvers,
       csrfPrevention: true,
-      context: ({ req }) => {
-        console.log('req.get("Authorization")', req.get("Authorization"));
-        return { ...createContext(), ip: req.ip, userId: "0000" };
+      context: async ({ req }) => {
+        const ctx = await createContext(req);
+
+        return { ...ctx, ip: req.ip };
       },
       formatError: (error) => {
         console.log("Error calling GraphQL query or mutation");
