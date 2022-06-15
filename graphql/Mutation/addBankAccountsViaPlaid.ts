@@ -1,11 +1,14 @@
+import { BankAccountFull } from "../../types/bankAccountFull";
 import { BankAccount, MutationResolvers } from "../../types/resolverTypes";
 import { ParcelBankAccount } from "../../utils/parcel";
+
+import { v4 as uuidv4 } from "uuid";
 
 export const addBankAccountsViaPlaid: MutationResolvers["addBankAccountsViaPlaid"] =
   async (
     _parent,
     { plaidId, plaidObj },
-    { parcelClient, plaidClient }
+    { parcelClient, plaidClient, user }
   ): Promise<BankAccount[]> => {
     let result: BankAccount[] = [];
     if (plaidId && plaidObj) {
@@ -19,15 +22,13 @@ export const addBankAccountsViaPlaid: MutationResolvers["addBankAccountsViaPlaid
             publicToken: plaidId,
           });
 
+        const userId = user && user.id ? user.id : uuidv4();
         if (tokenExchangeResult) {
           const accessToken = tokenExchangeResult;
           // const accountId = tokenExchangeResult.accountId;
 
-          let values = [];
-
-          for (let a = 0; a < accounts.length; a++) {
-            const account = accounts[a];
-
+          for await (const account of accounts) {
+            console.log("account", account);
             const plaidId = account.id;
             const mask = account.mask;
             const name = account.name;
@@ -42,20 +43,24 @@ export const addBankAccountsViaPlaid: MutationResolvers["addBankAccountsViaPlaid
               }
             }
 
-            let value: ParcelBankAccount = {
-              account_access_token: accessToken,
-              account_access_customer_id: plaidId,
-              institution: plaidInstitution,
-              institution_id: plaidInstitutionId,
-              name,
+            const valueBrief: BankAccount = {
+              id: plaidId,
               mask,
-              type,
+              name,
               subtype,
+              type,
               balance,
             };
-            values.push(value);
+
+            const value: BankAccountFull = {
+              accountAccessToken: accessToken,
+              bankAccount: valueBrief,
+              institution: plaidInstitution,
+              institutionId: plaidInstitutionId,
+            };
+
+            await parcelClient.insertBankAccount(value, userId);
           }
-          result = await parcelClient.insertBankAccounts(values);
         }
       }
     }

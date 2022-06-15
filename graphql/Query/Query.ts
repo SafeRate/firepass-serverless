@@ -5,6 +5,7 @@ import { getPlaidLinkToken } from "./getPlaidLinkToken";
 import { getTouchIdOtpPasscode } from "./getTouchIdOtpPasscode";
 import { getUserData } from "./getUserData";
 import { helloWorld } from "./helloWorld";
+import { sandbox } from "./sandbox";
 
 export const Query = {
   getDocumentById,
@@ -14,4 +15,5 @@ export const Query = {
   getTouchIdOtpPasscode,
   getUserData,
   helloWorld,
+  sandbox,
 };

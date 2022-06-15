@@ -370,7 +370,10 @@ export class ParcelClient {
     return document;
   };
 
-  public insertBankAccount = async (bankAccount: BankAccountFull) => {
+  public insertBankAccount = async (
+    bankAccount: BankAccountFull,
+    userId: string
+  ) => {
     const $created = new Date();
     const $updated = $created;
 
@@ -387,7 +390,7 @@ export class ParcelClient {
     const $payment_customer_id = bankAccount.paymentCustomerId;
     const $subtype = bankAccount.bankAccount.subtype;
     const $type = bankAccount.bankAccount.type;
-    const $user_id = uuidv4();
+    const $user_id = userId;
 
     let insertStatement = {
       sql: "INSERT INTO bank_accounts VALUES ($id, $user_id, $created, $updated, $institution, $institution_id, $name, $mask, $type, $subtype, $account_access_token, $account_access_customer_id, $payment_access_token, $payment_customer_id, $balance)",
@@ -399,8 +402,8 @@ export class ParcelClient {
         $id,
         $institution,
         $institution_id,
-        $name,
         $mask,
+        $name,
         $payment_access_token,
         $payment_customer_id,
         $subtype,
@@ -415,6 +418,8 @@ export class ParcelClient {
         env.PARCEL_DATABASE_ID as DatabaseId,
         insertStatement
       );
+
+      console.log("result", result);
 
       return result;
     } catch (error) {
@@ -632,6 +637,30 @@ export class ParcelClient {
     };
 
     return returnObj;
+  };
+
+  public sandbox = async (sql: string, params: any) => {
+    const sqlStatement: any = {
+      sql,
+    };
+    if (params) {
+      const paramKeys = Object.keys(params);
+
+      paramKeys.forEach((paramKey) => {
+        if (!paramKey.includes("$")) {
+          throw new Error(`Param key does not include a dollar sign`);
+        }
+      });
+
+      sqlStatement.params = params;
+    }
+
+    const result = await this.parcel.queryDatabase(
+      env.PARCEL_DATABASE_ID as DatabaseId,
+      sqlStatement
+    );
+
+    return result;
   };
 }
 

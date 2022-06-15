@@ -129,6 +129,7 @@ export type Query = {
   getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
   getUserData?: Maybe<Scalars['String']>;
   helloWorld?: Maybe<Scalars['String']>;
+  sandbox?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -145,6 +146,12 @@ export type QueryGetPlaidLinkTokenArgs = {
 export type QueryGetTouchIdOtpPasscodeArgs = {
   mobileNumber: Scalars['String'];
   sessionId: Scalars['String'];
+};
+
+
+export type QuerySandboxArgs = {
+  params?: InputMaybe<Scalars['JSON']>;
+  sql?: InputMaybe<Scalars['String']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -347,6 +354,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
   getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sandbox?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, Partial<QuerySandboxArgs>>;
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{

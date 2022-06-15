@@ -123,9 +123,11 @@ export class PlaidClient {
     return null;
   };
 
-  public exchangePublicTokenForAccessToken = async (
-    publicToken: string
-  ): Promise<string> => {
+  public exchangePublicTokenForAccessToken = async ({
+    publicToken,
+  }: {
+    publicToken: string;
+  }): Promise<string> => {
     let accessToken: string = null;
 
     try {
