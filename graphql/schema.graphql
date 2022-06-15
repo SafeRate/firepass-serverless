@@ -29,7 +29,7 @@ type ConsumerAddress {
   streetAddress: String
   city: String
   state: String
-  zipcode: String
+  zipCode: String
 }
 
 type ConsumerIdentification {
@@ -88,8 +88,8 @@ type Mutation {
     plaid: Boolean!
   ): Boolean
 
-  createParcelUser: Boolean
-  deleteParcelUser: Boolean
+  createParcelUser(id: String!, email: String!): Boolean
+  deleteParcelUser(id: String!): Boolean
 
   helloWorldMutate: String
 }

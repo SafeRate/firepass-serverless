@@ -460,12 +460,12 @@ export class EquifaxClient {
         options
       );
 
-      console.log("a");
-      console.log(result);
+      // console.log("a");
+      // console.log(result);
 
       if (result.data) {
-        console.log("b");
-        console.log(result.data);
+        // console.log("b");
+        // console.log(result.data);
 
         const resultData = result.data;
         if (

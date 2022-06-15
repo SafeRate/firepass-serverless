@@ -43,7 +43,7 @@ export type ConsumerAddress = {
   city?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['String']>;
   streetAddress?: Maybe<Scalars['String']>;
-  zipcode?: Maybe<Scalars['String']>;
+  zipCode?: Maybe<Scalars['String']>;
 };
 
 export type ConsumerContact = {
@@ -114,6 +114,17 @@ export type MutationCreateDatabaseArgs = {
   users: Scalars['Boolean'];
 };
 
+
+export type MutationCreateParcelUserArgs = {
+  email: Scalars['String'];
+  id: Scalars['String'];
+};
+
+
+export type MutationDeleteParcelUserArgs = {
+  id: Scalars['String'];
+};
+
 export type OtpPasscode = {
   __typename?: 'OtpPasscode';
   sessionId: Scalars['String'];
@@ -151,7 +162,7 @@ export type QueryGetTouchIdOtpPasscodeArgs = {
 
 export type QuerySandboxArgs = {
   params?: InputMaybe<Scalars['JSON']>;
-  sql?: InputMaybe<Scalars['String']>;
+  sql: Scalars['String'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -288,7 +299,7 @@ export type ConsumerAddressResolvers<ContextType = Context, ParentType extends R
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   streetAddress?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  zipcode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  zipCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -335,8 +346,8 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   completeInstaTouchIdMobile?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdMobileArgs, 'SSN' | 'sessionId' | 'zipCode'>>;
   completeInstaTouchIdOtp?: Resolver<Maybe<ResolversTypes['Consumer']>, ParentType, ContextType, RequireFields<MutationCompleteInstaTouchIdOtpArgs, 'SSN' | 'mobileNumber' | 'passcode' | 'sessionId' | 'transactionKey' | 'zipCode'>>;
   createDatabase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCreateDatabaseArgs, 'equifax' | 'plaid' | 'stripe' | 'users'>>;
-  createParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  deleteParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  createParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationCreateParcelUserArgs, 'email' | 'id'>>;
+  deleteParcelUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteParcelUserArgs, 'id'>>;
   helloWorldMutate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
@@ -354,7 +365,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
   getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  sandbox?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, Partial<QuerySandboxArgs>>;
+  sandbox?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<QuerySandboxArgs, 'sql'>>;
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{

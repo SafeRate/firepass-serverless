@@ -431,7 +431,8 @@ export class ParcelClient {
   };
 
   public insertEquifaxConsumer = async (
-    consumerIdentity: EquifaxConsumerIdentity
+    consumerIdentity: EquifaxConsumerIdentity,
+    userId: string
   ) => {
     const $created = new Date();
     const $updated = $created;
@@ -459,7 +460,6 @@ export class ParcelClient {
     const $email = consumerIdentity.contact.emailAddress;
     const $mobile = consumerIdentity.contact.mobile;
     const $home_phone = consumerIdentity.contact.homePhone;
-    const $user_id = uuidv4();
 
     let insertStatement = {
       sql: "INSERT INTO equifax_consumers VALUES ($user_id, $id, $created, $updated, $revoked, $ssn, $dob, $first_name, $last_name, $addresses_current, $addresses_previous, $email, $mobile, $home_phone)",
@@ -477,7 +477,7 @@ export class ParcelClient {
         $revoked,
         $ssn,
         $updated,
-        $user_id,
+        $user_id: userId,
       },
     };
 
@@ -496,28 +496,22 @@ export class ParcelClient {
     }
   };
 
-  public insertUser = async (
-    $company_id: string,
-    $email: string,
-    $mobile: string
-  ) => {
-    const $id = uuidv4();
+  public insertUser = async (id: string, email: string) => {
     const $created = new Date();
     const $updated = $created;
-
-    let insertStatement = {
-      sql: "INSERT INTO users VALUES ($id, $created, $updated, $company_id, $email, $mobile)",
-      params: {
-        $id,
-        $created,
-        $updated,
-        $company_id,
-        $email,
-        $mobile,
-      },
+    const params = {
+      $id: id,
+      $email: email,
+      $created,
+      $updated,
     };
 
-    const result = await this.parcel.queryDatabase(
+    let insertStatement = {
+      sql: "INSERT INTO users VALUES ($id, $created, $updated, $email)",
+      params,
+    };
+
+    await this.parcel.queryDatabase(
       env.PARCEL_DATABASE_ID as DatabaseId,
       insertStatement
     );
@@ -605,6 +599,8 @@ export class ParcelClient {
   private parseEquifaxConsumer = (
     peConsumer: ParcelEquifaxConsumer[] | ParcelEquifaxConsumer
   ): Consumer => {
+    console.log("peConsumer", peConsumer);
+
     if (!peConsumer) {
       return null;
     }
@@ -623,7 +619,10 @@ export class ParcelClient {
         homePhone: peConsumer.home_phone,
         mobile: peConsumer.mobile,
       },
-      currentAddresses: peConsumer.addresses_current,
+      currentAddresses:
+        typeof peConsumer.addresses_current === "string"
+          ? JSON.parse(peConsumer.addresses_current as any)
+          : peConsumer.addresses_current,
       id: peConsumer.user_id,
       identification: {
         dob: peConsumer.dob,
@@ -633,7 +632,10 @@ export class ParcelClient {
         firstName: peConsumer.first_name,
         lastName: peConsumer.last_name,
       },
-      previousAddresses: peConsumer.addresses_previous,
+      previousAddresses:
+        typeof peConsumer.addresses_previous === "string"
+          ? JSON.parse(peConsumer.addresses_previous as any)
+          : peConsumer.addresses_previous,
     };
 
     return returnObj;
