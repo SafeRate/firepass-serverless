@@ -1,4 +1,4 @@
-import { precisionDivide, precisionMultiply } from "../precisionMath";
+import { precisionDivide, precisionMultiply } from "../math/precisionMath";
 import { Adjustment, Quote } from "./quote";
 
 export enum MortgageInsuranceProvider {

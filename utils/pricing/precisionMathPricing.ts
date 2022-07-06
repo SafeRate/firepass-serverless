@@ -44,7 +44,8 @@ export type CashflowResult = {
 };
 
 export const precisionCashflow = function (
-  quoteResult: QuoteResult
+  quoteResult: QuoteResult,
+  useSavingsRate: boolean
 ): CashflowResult {
   let cashflowResult: CashflowResult = {
     aprFirst: 0,
@@ -100,6 +101,20 @@ export const precisionCashflow = function (
     totalPrincipalFirst: number = 0,
     totalPrincipalSecond: number = 0;
 
+  let keyRate,
+    keyPaymentPeriodic,
+    keyPaymentUpfront = 0;
+
+  if (useSavingsRate) {
+    keyRate = quoteResult.safeRateSavingsRate;
+    keyPaymentPeriodic = quoteResult.safeRateSavingsPaymentPeriodic;
+    keyPaymentUpfront = quoteResult.safeRateSavingsPaymentUpfront;
+  } else {
+    keyRate = quoteResult.offerRate;
+    keyPaymentPeriodic = quoteResult.offerPaymentPeriodic;
+    keyPaymentUpfront = quoteResult.offerPaymentUpfront;
+  }
+
   let hasMortgageInsurance: boolean = quoteResult.mortgageInsurance !== null;
   let hasMortgageInsurancePeriodic: boolean = false;
   let hasMortgageInsuranceUpfront: boolean = false;
@@ -122,12 +137,12 @@ export const precisionCashflow = function (
   let hasSubordinate: boolean = quoteResult.subordinate !== null;
 
   let firstLienAmount: number = quoteResult.loanAmount;
-  const firstLienPeriodicRate: number = new Decimal(quoteResult.offerRate)
+  const firstLienPeriodicRate: number = new Decimal(keyRate)
     .dividedBy(100)
     .dividedBy(12)
     .toDecimalPlaces(12)
     .toNumber();
-  const firstLienPayment: number = quoteResult.offerPaymentPeriodic;
+  const firstLienPayment: number = keyPaymentPeriodic;
 
   let secondLienAmount: number = quoteResult.subordinate?.loanAmount
     ? quoteResult.subordinate?.loanAmount
@@ -194,15 +209,18 @@ export const precisionCashflow = function (
           : 0;
       }
 
-      if (quoteResult.offerPaymentUpfront) {
-        let feesFinance = new Decimal(quoteResult.offerPaymentUpfront)
+      let feesFinance = quoteResult.points ? quoteResult.points : 0;
+
+      if (keyPaymentUpfront) {
+        feesFinance = new Decimal(keyPaymentUpfront)
           .times(-1)
           .toDecimalPlaces(2)
+          .plus(feesFinance)
           .toNumber();
+      }
 
-        if (feesFinance !== 0) {
-          cashflowFeesFinance = feesFinance;
-        }
+      if (feesFinance !== 0) {
+        cashflowFeesFinance = feesFinance;
       }
     } else {
       if (
@@ -448,7 +466,7 @@ export const precisionCashflow = function (
   let aprFirst: number = unitRoot(
     discountFirstCashFlows,
     0,
-    new Decimal(quoteResult.offerRate).times(2).toDecimalPlaces(6).toNumber(),
+    new Decimal(keyRate).times(2).toDecimalPlaces(6).toNumber(),
     0.000011,
     1000
   );
@@ -489,7 +507,7 @@ export const precisionCashflow = function (
     let aprSecond: number = unitRoot(
       discountSecondCashFlows,
       0,
-      new Decimal(quoteResult.offerRate).times(2).toDecimalPlaces(6).toNumber(),
+      new Decimal(keyRate).times(2).toDecimalPlaces(6).toNumber(),
       0.000011,
       1000
     );

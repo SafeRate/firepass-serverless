@@ -37,11 +37,13 @@ export type Quote = {
   lock: number;
   manufacturedHome: boolean;
   monthlyDebt: number;
+  points: number;
   propertyValue: number;
   purchase: boolean;
   primaryResidence: boolean;
   rateTermOnly: boolean;
   refinance: boolean;
+  safeRateSavings: number;
   secondaryResidence: boolean;
   selfEmployed: boolean;
   singleFamilyHome: boolean;
@@ -74,6 +76,7 @@ export type QuoteResult = {
   offerPaymentPeriodic: number;
   offerPaymentUpfront: number;
   periodsPerYear: number;
+  points: number;
   productType: string;
   productName: string;
   propertyTaxes: number;
@@ -82,6 +85,12 @@ export type QuoteResult = {
   returnPaymentUpfront: number;
   returnPaymentPeriodic: number;
   returnRate: number;
+  safeRateSavings: number;
+  safeRateSavingsCashflow: CashflowResult | null;
+  safeRateSavingsRate: number;
+  safeRateSavingsPaymentPeriodic: number;
+  safeRateSavingsPaymentUpfront: number;
+  safeRateSavingsLifetime: number;
   subordinate: SubordinateQuoteResult | null;
   valid: boolean;
 };
@@ -709,6 +718,7 @@ const getQuoteForProduct = function (
     offerPaymentPeriodic: 0,
     offerPaymentUpfront: 0,
     periodsPerYear: 12,
+    points: quote.points,
     productType: product.productType,
     productName: product.lenderName,
     propertyTaxes: 0,
@@ -717,6 +727,12 @@ const getQuoteForProduct = function (
     returnPaymentPeriodic: 0,
     returnPaymentUpfront: 0,
     returnRate: 0,
+    safeRateSavings: quote.safeRateSavings,
+    safeRateSavingsCashflow: null,
+    safeRateSavingsLifetime: 0,
+    safeRateSavingsPaymentPeriodic: 0,
+    safeRateSavingsPaymentUpfront: 0,
+    safeRateSavingsRate: 0,
     subordinate: null,
     valid: false,
   };
@@ -756,282 +772,284 @@ const getQuoteForProduct = function (
     }
 
     if (currentLock < Infinity) {
-      // calculate total adjustments
-      let totalAdjustment: number = 0;
+      getOfferBuyReturnRates(qr, quote, product, ratePrices, false);
+      getOfferBuyReturnRates(qr, quote, product, ratePrices, true);
+      // // calculate total adjustments
+      // let totalAdjustment: number = 0;
 
-      for (let a = 0; a < qr.adjustments.length; a++) {
-        const adjustment: Adjustment = qr.adjustments[a];
-        if (adjustment.value !== null) {
-          totalAdjustment = precisionAdd(
-            [totalAdjustment, precisionRound(adjustment.value, 6) as number],
-            6
-          ) as number;
-        }
-      }
+      // for (let a = 0; a < qr.adjustments.length; a++) {
+      //   const adjustment: Adjustment = qr.adjustments[a];
+      //   if (adjustment.value !== null) {
+      //     totalAdjustment = precisionAdd(
+      //       [totalAdjustment, precisionRound(adjustment.value, 6) as number],
+      //       6
+      //     ) as number;
+      //   }
+      // }
 
-      // find where you fall on price scale
-      let minBuy: number = -Infinity;
-      let minBuyRate: number = -Infinity;
-      let minReturn: number = Infinity;
-      let minReturnRate: number = Infinity;
+      // // find where you fall on price scale
+      // let minBuy: number = -Infinity;
+      // let minBuyRate: number = -Infinity;
+      // let minReturn: number = Infinity;
+      // let minReturnRate: number = Infinity;
 
-      for (let rp = 0; rp < ratePrices.length; rp++) {
-        const ratePrice: RatePrice = ratePrices[rp];
+      // for (let rp = 0; rp < ratePrices.length; rp++) {
+      //   const ratePrice: RatePrice = ratePrices[rp];
 
-        // To align with adjustments where a cost is + and rebate is -
-        const price: number = precisionNegate(ratePrice.price, 6) as any;
-        const rate: number = ratePrice.rate;
-        const spread: number = precisionSubtract(
-          [price, totalAdjustment],
-          6
-        ) as number;
+      //   // To align with adjustments where a cost is + and rebate is -
+      //   const price: number = precisionNegate(ratePrice.price, 6) as any;
+      //   const rate: number = ratePrice.rate;
+      //   const spread: number = precisionSubtract(
+      //     [price, totalAdjustment],
+      //     6
+      //   ) as number;
 
-        // Return
-        if (spread > 0) {
-          if (rate < minReturnRate) {
-            minReturnRate = rate;
-            minReturn = spread;
-          }
+      //   // Return
+      //   if (spread > 0) {
+      //     if (rate < minReturnRate) {
+      //       minReturnRate = rate;
+      //       minReturn = spread;
+      //     }
 
-          // Buy
-        } else if (spread < 0) {
-          if (rate > minBuyRate) {
-            minBuyRate = rate;
-            minBuy = spread;
-          }
-        } else if (spread === 0) {
-          minBuy = 0;
-          minReturn = 0;
-          minBuyRate = rate;
-          minReturnRate = rate;
-        }
-      }
+      //     // Buy
+      //   } else if (spread < 0) {
+      //     if (rate > minBuyRate) {
+      //       minBuyRate = rate;
+      //       minBuy = spread;
+      //     }
+      //   } else if (spread === 0) {
+      //     minBuy = 0;
+      //     minReturn = 0;
+      //     minBuyRate = rate;
+      //     minReturnRate = rate;
+      //   }
+      // }
 
-      qr.adjustmentAmount = totalAdjustment;
-      qr.adjustmentPayment = precisionMultiply(
-        [
-          precisionDivide([totalAdjustment, 100], 10) as number,
-          quote.loanAmount,
-        ],
-        2
-      ) as number;
+      // qr.adjustmentAmount = totalAdjustment;
+      // qr.adjustmentPayment = precisionMultiply(
+      //   [
+      //     precisionDivide([totalAdjustment, 100], 10) as number,
+      //     quote.loanAmount,
+      //   ],
+      //   2
+      // ) as number;
 
-      if (minBuyRate === -Infinity) {
-        qr.buyAmount = 0;
-        qr.buyPaymentPeriodic = 0;
-        qr.buyPaymentUpfront = 0;
-        qr.buyRate = 0;
-      } else {
-        qr.buyAmount = minBuy;
-        qr.buyPaymentPeriodic = precisionAmoritize(
-          quote.loanAmount,
-          12,
-          minBuyRate,
-          quote.loanTerm * 12
-        );
-        qr.buyPaymentUpfront = precisionMultiply(
-          [
-            quote.loanAmount,
-            precisionDivide([qr.buyAmount, 100], 10) as number,
-          ],
-          2
-        ) as number;
-        qr.buyRate = minBuyRate;
-      }
+      // if (minBuyRate === -Infinity) {
+      //   qr.buyAmount = 0;
+      //   qr.buyPaymentPeriodic = 0;
+      //   qr.buyPaymentUpfront = 0;
+      //   qr.buyRate = 0;
+      // } else {
+      //   qr.buyAmount = minBuy;
+      //   qr.buyPaymentPeriodic = precisionAmoritize(
+      //     quote.loanAmount,
+      //     12,
+      //     minBuyRate,
+      //     quote.loanTerm * 12
+      //   );
+      //   qr.buyPaymentUpfront = precisionMultiply(
+      //     [
+      //       quote.loanAmount,
+      //       precisionDivide([qr.buyAmount, 100], 10) as number,
+      //     ],
+      //     2
+      //   ) as number;
+      //   qr.buyRate = minBuyRate;
+      // }
 
-      if (minReturnRate === Infinity) {
-        qr.returnAmount = 0;
-        qr.returnPaymentPeriodic = 0;
-        qr.returnPaymentUpfront = 0;
-        qr.returnRate = 0;
-      } else {
-        qr.returnAmount = minReturn;
-        qr.returnPaymentPeriodic = precisionAmoritize(
-          quote.loanAmount,
-          12,
-          minReturnRate,
-          quote.loanTerm * 12
-        );
-        qr.returnPaymentUpfront = precisionMultiply(
-          [
-            quote.loanAmount,
-            precisionDivide([qr.returnAmount, 100], 10) as number,
-          ],
-          2
-        ) as number;
-        qr.returnRate = minReturnRate;
-      }
+      // if (minReturnRate === Infinity) {
+      //   qr.returnAmount = 0;
+      //   qr.returnPaymentPeriodic = 0;
+      //   qr.returnPaymentUpfront = 0;
+      //   qr.returnRate = 0;
+      // } else {
+      //   qr.returnAmount = minReturn;
+      //   qr.returnPaymentPeriodic = precisionAmoritize(
+      //     quote.loanAmount,
+      //     12,
+      //     minReturnRate,
+      //     quote.loanTerm * 12
+      //   );
+      //   qr.returnPaymentUpfront = precisionMultiply(
+      //     [
+      //       quote.loanAmount,
+      //       precisionDivide([qr.returnAmount, 100], 10) as number,
+      //     ],
+      //     2
+      //   ) as number;
+      //   qr.returnRate = minReturnRate;
+      // }
 
-      if (qr.buyRate > 0 && qr.returnRate > 0) {
-        if (qr.buyAmount === 0) {
-          qr.offerRate = qr.buyRate;
-          qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
-        } else if (qr.returnAmount === 0) {
-          qr.offerRate = qr.returnRate;
-          qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
-        } else {
-          // calculate the distance
-          const amountDistance = precisionSubtract(
-            [qr.returnAmount, qr.buyAmount],
-            2
-          ) as number;
+      // if (qr.buyRate > 0 && qr.returnRate > 0) {
+      //   if (qr.buyAmount === 0) {
+      //     qr.offerRate = qr.buyRate;
+      //     qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
+      //   } else if (qr.returnAmount === 0) {
+      //     qr.offerRate = qr.returnRate;
+      //     qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
+      //   } else {
+      //     // calculate the distance
+      //     const amountDistance = precisionSubtract(
+      //       [qr.returnAmount, qr.buyAmount],
+      //       2
+      //     ) as number;
 
-          const rateDistance = precisionSubtract(
-            [qr.returnRate, qr.buyRate],
-            2
-          ) as number;
+      //     const rateDistance = precisionSubtract(
+      //       [qr.returnRate, qr.buyRate],
+      //       2
+      //     ) as number;
 
-          const returProportionOfAmountDistance = precisionDivide(
-            [qr.returnAmount, amountDistance],
-            5
-          ) as number;
+      //     const returProportionOfAmountDistance = precisionDivide(
+      //       [qr.returnAmount, amountDistance],
+      //       5
+      //     ) as number;
 
-          let returnRateDistance = precisionMultiply(
-            [rateDistance, returProportionOfAmountDistance],
-            5
-          ) as number;
+      //     let returnRateDistance = precisionMultiply(
+      //       [rateDistance, returProportionOfAmountDistance],
+      //       5
+      //     ) as number;
 
-          qr.offerRate = precisionSubtract(
-            [qr.returnRate, returnRateDistance],
-            5
-          ) as number;
+      //     qr.offerRate = precisionSubtract(
+      //       [qr.returnRate, returnRateDistance],
+      //       5
+      //     ) as number;
 
-          qr.offerRate = precisionRoundUp(qr.offerRate, 2) as number;
-          qr.offerPaymentPeriodic = precisionAmoritize(
-            quote.loanAmount,
-            12,
-            qr.offerRate,
-            quote.loanTerm * 12
-          );
-          qr.offerPaymentUpfront = 0;
-        }
-      } else if (qr.returnRate > 0) {
-        qr.offerRate = qr.returnRate;
-        qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
-        qr.offerPaymentUpfront = qr.returnPaymentUpfront;
-      } else if (qr.buyRate > 0) {
-        qr.offerRate = qr.buyRate;
-        qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
-        qr.offerPaymentUpfront = qr.buyPaymentUpfront;
-      }
+      //     qr.offerRate = precisionRoundUp(qr.offerRate, 2) as number;
+      //     qr.offerPaymentPeriodic = precisionAmoritize(
+      //       quote.loanAmount,
+      //       12,
+      //       qr.offerRate,
+      //       quote.loanTerm * 12
+      //     );
+      //     qr.offerPaymentUpfront = 0;
+      //   }
+      // } else if (qr.returnRate > 0) {
+      //   qr.offerRate = qr.returnRate;
+      //   qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
+      //   qr.offerPaymentUpfront = qr.returnPaymentUpfront;
+      // } else if (qr.buyRate > 0) {
+      //   qr.offerRate = qr.buyRate;
+      //   qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
+      //   qr.offerPaymentUpfront = qr.buyPaymentUpfront;
+      // }
 
-      const isConventional =
-        product.productType.toLowerCase() ===
-        ProductType.conventional.toLowerCase();
-      const isFha =
-        product.productType.toLowerCase() === ProductType.fha.toLowerCase();
-      const isVa =
-        product.productType.toLowerCase() === ProductType.va.toLowerCase();
-      const ltvExceeds80 = quote.loanToValue > 80;
-      const isMiBuster = product.lenderName.toLowerCase() === "mi buster";
-      const hasSubordinateFinancing = quote.subordinateAmount > 0;
+      // const isConventional =
+      //   product.productType.toLowerCase() ===
+      //   ProductType.conventional.toLowerCase();
+      // const isFha =
+      //   product.productType.toLowerCase() === ProductType.fha.toLowerCase();
+      // const isVa =
+      //   product.productType.toLowerCase() === ProductType.va.toLowerCase();
+      // const ltvExceeds80 = quote.loanToValue > 80;
+      // const isMiBuster = product.lenderName.toLowerCase() === "mi buster";
+      // const hasSubordinateFinancing = quote.subordinateAmount > 0;
 
-      const isSafeRateTarget =
-        isConventional &&
-        quote.combinedLoanToValue > 90 &&
-        quote.combinedLoanToValue <= 97 &&
-        quote.creditScore > 660 &&
-        quote.creditScore <= 740 &&
-        quote.subordinateAmount > 0;
+      // const isSafeRateTarget =
+      //   isConventional &&
+      //   quote.combinedLoanToValue > 90 &&
+      //   quote.combinedLoanToValue <= 97 &&
+      //   quote.creditScore > 660 &&
+      //   quote.creditScore <= 740 &&
+      //   quote.subordinateAmount > 0;
 
-      // TODO: Conventional PMI check (isConventional, not MI buster, LTV > 80, )
-      if (
-        isConventional &&
-        ltvExceeds80 &&
-        !isMiBuster &&
-        !hasSubordinateFinancing
-      ) {
-        // TODO: Conventional Safe Rate check
-        const mortgageInsuranceQuoteResult: MortgageInsuranceQuoteResult =
-          getPrivateMortgageInsuranceQuote(quote);
+      // // TODO: Conventional PMI check (isConventional, not MI buster, LTV > 80, )
+      // if (
+      //   isConventional &&
+      //   ltvExceeds80 &&
+      //   !isMiBuster &&
+      //   !hasSubordinateFinancing
+      // ) {
+      //   // TODO: Conventional Safe Rate check
+      //   const mortgageInsuranceQuoteResult: MortgageInsuranceQuoteResult =
+      //     getPrivateMortgageInsuranceQuote(quote);
 
-        qr.mortgageInsurance = mortgageInsuranceQuoteResult;
-      } else if (isSafeRateTarget) {
-        const safeRateQuote = getSubordinateSafeRateQuote(quote);
-        qr.subordinate = safeRateQuote;
-      }
+      //   qr.mortgageInsurance = mortgageInsuranceQuoteResult;
+      // } else if (isSafeRateTarget) {
+      //   const safeRateQuote = getSubordinateSafeRateQuote(quote);
+      //   qr.subordinate = safeRateQuote;
+      // }
 
-      if (isFha) {
-        const fhaInsurance: MortgageInsuranceQuoteResult =
-          getFHAMortgageInsuranceQuote(quote);
-        qr.mortgageInsurance = fhaInsurance;
+      // if (isFha) {
+      //   const fhaInsurance: MortgageInsuranceQuoteResult =
+      //     getFHAMortgageInsuranceQuote(quote);
+      //   qr.mortgageInsurance = fhaInsurance;
 
-        if (qr.mortgageInsurance?.upfrontAmount) {
-          qr.loanAmount = precisionAdd(
-            [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
-            2
-          ) as number;
-        }
+      //   if (qr.mortgageInsurance?.upfrontAmount) {
+      //     qr.loanAmount = precisionAdd(
+      //       [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
+      //       2
+      //     ) as number;
+      //   }
 
-        if (qr.offerPaymentPeriodic > 0) {
-          qr.offerPaymentPeriodic = precisionAmoritize(
-            qr.loanAmount,
-            12,
-            qr.offerRate,
-            precisionMultiply([quote.loanTerm, 12], 0) as number
-          );
-        }
+      //   if (qr.offerPaymentPeriodic > 0) {
+      //     qr.offerPaymentPeriodic = precisionAmoritize(
+      //       qr.loanAmount,
+      //       12,
+      //       qr.offerRate,
+      //       precisionMultiply([quote.loanTerm, 12], 0) as number
+      //     );
+      //   }
 
-        if (qr.returnPaymentPeriodic > 0) {
-          qr.returnPaymentPeriodic = precisionAmoritize(
-            qr.loanAmount,
-            12,
-            qr.returnRate,
-            precisionMultiply([quote.loanTerm, 12], 0) as number
-          );
-        }
+      //   if (qr.returnPaymentPeriodic > 0) {
+      //     qr.returnPaymentPeriodic = precisionAmoritize(
+      //       qr.loanAmount,
+      //       12,
+      //       qr.returnRate,
+      //       precisionMultiply([quote.loanTerm, 12], 0) as number
+      //     );
+      //   }
 
-        if (qr.offerPaymentPeriodic > 0) {
-          qr.offerPaymentPeriodic = precisionAmoritize(
-            qr.loanAmount,
-            12,
-            qr.offerRate,
-            precisionMultiply([quote.loanTerm, 12], 0) as number
-          );
-        }
-      }
+      //   if (qr.offerPaymentPeriodic > 0) {
+      //     qr.offerPaymentPeriodic = precisionAmoritize(
+      //       qr.loanAmount,
+      //       12,
+      //       qr.offerRate,
+      //       precisionMultiply([quote.loanTerm, 12], 0) as number
+      //     );
+      //   }
+      // }
 
-      if (isVa) {
-        const vaInsurance: MortgageInsuranceQuoteResult =
-          getVAMortgageInsuranceQuote(quote);
-        qr.mortgageInsurance = vaInsurance;
+      // if (isVa) {
+      //   const vaInsurance: MortgageInsuranceQuoteResult =
+      //     getVAMortgageInsuranceQuote(quote);
+      //   qr.mortgageInsurance = vaInsurance;
 
-        if (qr.mortgageInsurance?.upfrontAmount) {
-          qr.loanAmount = precisionAdd(
-            [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
-            2
-          ) as number;
-        }
+      //   if (qr.mortgageInsurance?.upfrontAmount) {
+      //     qr.loanAmount = precisionAdd(
+      //       [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
+      //       2
+      //     ) as number;
+      //   }
 
-        if (qr.offerRate > 0) {
-          if (qr.offerPaymentPeriodic > 0) {
-            qr.offerPaymentPeriodic = precisionAmoritize(
-              qr.loanAmount,
-              12,
-              qr.offerRate,
-              precisionMultiply([quote.loanTerm, 12], 0) as number
-            );
-          }
+      //   if (qr.offerRate > 0) {
+      //     if (qr.offerPaymentPeriodic > 0) {
+      //       qr.offerPaymentPeriodic = precisionAmoritize(
+      //         qr.loanAmount,
+      //         12,
+      //         qr.offerRate,
+      //         precisionMultiply([quote.loanTerm, 12], 0) as number
+      //       );
+      //     }
 
-          if (qr.returnPaymentPeriodic > 0) {
-            qr.returnPaymentPeriodic = precisionAmoritize(
-              qr.loanAmount,
-              12,
-              qr.returnRate,
-              precisionMultiply([quote.loanTerm, 12], 0) as number
-            );
-          }
+      //     if (qr.returnPaymentPeriodic > 0) {
+      //       qr.returnPaymentPeriodic = precisionAmoritize(
+      //         qr.loanAmount,
+      //         12,
+      //         qr.returnRate,
+      //         precisionMultiply([quote.loanTerm, 12], 0) as number
+      //       );
+      //     }
 
-          if (qr.offerPaymentPeriodic > 0) {
-            qr.offerPaymentPeriodic = precisionAmoritize(
-              qr.loanAmount,
-              12,
-              qr.offerRate,
-              precisionMultiply([quote.loanTerm, 12], 0) as number
-            );
-          }
-        }
-      }
+      //     if (qr.offerPaymentPeriodic > 0) {
+      //       qr.offerPaymentPeriodic = precisionAmoritize(
+      //         qr.loanAmount,
+      //         12,
+      //         qr.offerRate,
+      //         precisionMultiply([quote.loanTerm, 12], 0) as number
+      //       );
+      //     }
+      //   }
+      // }
 
       // TODO: payment/DTI check and down-payment check
     } else {
@@ -1041,10 +1059,378 @@ const getQuoteForProduct = function (
   }
 
   if (qr.offerRate > 0) {
-    qr.cashflow = precisionCashflow(qr);
+    qr.cashflow = precisionCashflow(qr, false);
+  }
+
+  if (qr.safeRateSavingsRate > 0) {
+    qr.safeRateSavingsCashflow = precisionCashflow(qr, true);
   }
 
   return qr;
+};
+
+const getOfferBuyReturnRates = function (
+  quoteResult: QuoteResult,
+  quote: Quote,
+  product: Product,
+  ratePrices: RatePrice[],
+  safeRateSavingsMode: boolean
+) {
+  // Ensure a deep copy
+  const qr: QuoteResult = { ...quoteResult };
+
+  // calculate total adjustments
+  let totalAdjustment: number = 0;
+
+  let pointsAndSavings = quote.points;
+
+  if (quote.points > 0) {
+    totalAdjustment = precisionAdd(
+      [
+        totalAdjustment,
+        precisionNegate(
+          precisionDivide([quote.points, quote.loanAmount], 6),
+          6
+        ),
+      ],
+      6
+    );
+  }
+
+  if (safeRateSavingsMode && quote.safeRateSavings > 0) {
+    totalAdjustment = precisionAdd(
+      [
+        totalAdjustment,
+        precisionNegate(
+          precisionDivide([quote.safeRateSavings, quote.loanAmount], 6),
+          6
+        ),
+      ],
+      6
+    );
+  }
+
+  if (safeRateSavingsMode) {
+    pointsAndSavings = precisionAdd(
+      [quote.safeRateSavings, pointsAndSavings],
+      2
+    );
+  }
+
+  for (let a = 0; a < qr.adjustments.length; a++) {
+    const adjustment: Adjustment = qr.adjustments[a];
+    if (adjustment.value !== null) {
+      totalAdjustment = precisionAdd(
+        [totalAdjustment, precisionRound(adjustment.value, 6) as number],
+        6
+      ) as number;
+    }
+  }
+
+  // find where you fall on price scale
+  let minBuy: number = -Infinity;
+  let minBuyRate: number = -Infinity;
+  let minReturn: number = Infinity;
+  let minReturnRate: number = Infinity;
+
+  for (let rp = 0; rp < ratePrices.length; rp++) {
+    const ratePrice: RatePrice = ratePrices[rp];
+
+    // To align with adjustments where a cost is + and rebate is -
+    const price: number = precisionNegate(ratePrice.price, 6) as any;
+    const rate: number = ratePrice.rate;
+    const spread: number = precisionSubtract(
+      [price, totalAdjustment],
+      6
+    ) as number;
+
+    // Return
+    if (spread > 0) {
+      if (rate < minReturnRate) {
+        minReturnRate = rate;
+        minReturn = spread;
+      }
+
+      // Buy
+    } else if (spread < 0) {
+      if (rate > minBuyRate) {
+        minBuyRate = rate;
+        minBuy = spread;
+      }
+    } else if (spread === 0) {
+      minBuy = 0;
+      minReturn = 0;
+      minBuyRate = rate;
+      minReturnRate = rate;
+    }
+  }
+
+  qr.adjustmentAmount = totalAdjustment;
+  qr.adjustmentPayment = precisionMultiply(
+    [precisionDivide([totalAdjustment, 100], 10) as number, quote.loanAmount],
+    2
+  ) as number;
+
+  if (minBuyRate === -Infinity) {
+    qr.buyAmount = 0;
+    qr.buyPaymentPeriodic = 0;
+    qr.buyPaymentUpfront = 0;
+    qr.buyRate = 0;
+  } else {
+    qr.buyAmount = minBuy;
+    qr.buyPaymentPeriodic = precisionAmoritize(
+      quote.loanAmount,
+      12,
+      minBuyRate,
+      quote.loanTerm * 12
+    );
+    qr.buyPaymentUpfront = precisionMultiply(
+      [quote.loanAmount, precisionDivide([qr.buyAmount, 100], 10) as number],
+      2
+    ) as number;
+    qr.buyRate = minBuyRate;
+  }
+
+  if (minReturnRate === Infinity) {
+    qr.returnAmount = 0;
+    qr.returnPaymentPeriodic = 0;
+    qr.returnPaymentUpfront = 0;
+    qr.returnRate = 0;
+  } else {
+    qr.returnAmount = minReturn;
+    qr.returnPaymentPeriodic = precisionAmoritize(
+      quote.loanAmount,
+      12,
+      minReturnRate,
+      quote.loanTerm * 12
+    );
+    qr.returnPaymentUpfront = precisionMultiply(
+      [quote.loanAmount, precisionDivide([qr.returnAmount, 100], 10) as number],
+      2
+    ) as number;
+    qr.returnRate = minReturnRate;
+  }
+
+  if (qr.buyRate > 0 && qr.returnRate > 0) {
+    if (qr.buyAmount === 0) {
+      qr.offerRate = qr.buyRate;
+      qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
+    } else if (qr.returnAmount === 0) {
+      qr.offerRate = qr.returnRate;
+      qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
+    } else {
+      // calculate the distance
+      const amountDistance = precisionSubtract(
+        [qr.returnAmount, qr.buyAmount],
+        2
+      ) as number;
+
+      const rateDistance = precisionSubtract(
+        [qr.returnRate, qr.buyRate],
+        2
+      ) as number;
+
+      const returProportionOfAmountDistance = precisionDivide(
+        [qr.returnAmount, amountDistance],
+        5
+      ) as number;
+
+      let returnRateDistance = precisionMultiply(
+        [rateDistance, returProportionOfAmountDistance],
+        5
+      ) as number;
+
+      qr.offerRate = precisionSubtract(
+        [qr.returnRate, returnRateDistance],
+        5
+      ) as number;
+
+      qr.offerRate = precisionRoundUp(qr.offerRate, 2) as number;
+      qr.offerPaymentPeriodic = precisionAmoritize(
+        quote.loanAmount,
+        12,
+        qr.offerRate,
+        quote.loanTerm * 12
+      );
+      qr.offerPaymentUpfront = 0;
+    }
+  } else if (qr.returnRate > 0) {
+    qr.offerRate = qr.returnRate;
+    qr.offerPaymentPeriodic = qr.returnPaymentPeriodic;
+    qr.offerPaymentUpfront = qr.returnPaymentUpfront;
+  } else if (qr.buyRate > 0) {
+    qr.offerRate = qr.buyRate;
+    qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
+    qr.offerPaymentUpfront = qr.buyPaymentUpfront;
+  }
+
+  const isConventional =
+    product.productType.toLowerCase() ===
+    ProductType.conventional.toLowerCase();
+  const isFha =
+    product.productType.toLowerCase() === ProductType.fha.toLowerCase();
+  const isVa =
+    product.productType.toLowerCase() === ProductType.va.toLowerCase();
+  const ltvExceeds80 = quote.loanToValue > 80;
+  const isMiBuster = product.lenderName.toLowerCase() === "mi buster";
+  const hasSubordinateFinancing = quote.subordinateAmount > 0;
+
+  const isSafeRateTarget =
+    isConventional &&
+    quote.combinedLoanToValue > 90 &&
+    quote.combinedLoanToValue <= 97 &&
+    quote.creditScore >= 660 &&
+    quote.creditScore <= 720 &&
+    quote.subordinateAmount > 0;
+
+  // TODO: Conventional PMI check (isConventional, not MI buster, LTV > 80, )
+  if (
+    isConventional &&
+    ltvExceeds80 &&
+    !isMiBuster &&
+    !hasSubordinateFinancing
+  ) {
+    // TODO: Conventional Safe Rate check
+    const mortgageInsuranceQuoteResult: MortgageInsuranceQuoteResult =
+      getPrivateMortgageInsuranceQuote(quote);
+
+    qr.mortgageInsurance = mortgageInsuranceQuoteResult;
+  } else if (isSafeRateTarget) {
+    const safeRateQuote = getSubordinateSafeRateQuote(quote);
+    qr.subordinate = safeRateQuote;
+  }
+
+  if (isFha) {
+    const fhaInsurance: MortgageInsuranceQuoteResult =
+      getFHAMortgageInsuranceQuote(quote);
+    qr.mortgageInsurance = fhaInsurance;
+
+    if (qr.mortgageInsurance?.upfrontAmount) {
+      qr.loanAmount = precisionAdd(
+        [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
+        2
+      ) as number;
+    }
+
+    if (qr.offerPaymentPeriodic > 0) {
+      qr.offerPaymentPeriodic = precisionAmoritize(
+        qr.loanAmount,
+        12,
+        qr.offerRate,
+        precisionMultiply([quote.loanTerm, 12], 0) as number
+      );
+    }
+
+    if (qr.returnPaymentPeriodic > 0) {
+      qr.returnPaymentPeriodic = precisionAmoritize(
+        qr.loanAmount,
+        12,
+        qr.returnRate,
+        precisionMultiply([quote.loanTerm, 12], 0) as number
+      );
+    }
+
+    if (qr.offerPaymentPeriodic > 0) {
+      qr.offerPaymentPeriodic = precisionAmoritize(
+        qr.loanAmount,
+        12,
+        qr.offerRate,
+        precisionMultiply([quote.loanTerm, 12], 0) as number
+      );
+    }
+  }
+
+  if (isVa) {
+    const vaInsurance: MortgageInsuranceQuoteResult =
+      getVAMortgageInsuranceQuote(quote);
+    qr.mortgageInsurance = vaInsurance;
+
+    if (qr.mortgageInsurance?.upfrontAmount) {
+      qr.loanAmount = precisionAdd(
+        [qr.loanAmount, qr.mortgageInsurance?.upfrontAmount],
+        2
+      ) as number;
+    }
+
+    if (qr.offerRate > 0) {
+      if (qr.offerPaymentPeriodic > 0) {
+        qr.offerPaymentPeriodic = precisionAmoritize(
+          qr.loanAmount,
+          12,
+          qr.offerRate,
+          precisionMultiply([quote.loanTerm, 12], 0) as number
+        );
+      }
+
+      if (qr.returnPaymentPeriodic > 0) {
+        qr.returnPaymentPeriodic = precisionAmoritize(
+          qr.loanAmount,
+          12,
+          qr.returnRate,
+          precisionMultiply([quote.loanTerm, 12], 0) as number
+        );
+      }
+
+      if (qr.offerPaymentPeriodic > 0) {
+        qr.offerPaymentPeriodic = precisionAmoritize(
+          qr.loanAmount,
+          12,
+          qr.offerRate,
+          precisionMultiply([quote.loanTerm, 12], 0) as number
+        );
+      }
+    }
+  }
+
+  if (safeRateSavingsMode) {
+    quoteResult.safeRateSavingsRate = qr.offerRate;
+    quoteResult.safeRateSavingsPaymentPeriodic = qr.offerPaymentPeriodic;
+    quoteResult.safeRateSavingsPaymentUpfront = qr.offerPaymentUpfront;
+    quoteResult.safeRateSavingsLifetime = quote.safeRateSavings;
+
+    if (quoteResult.offerPaymentPeriodic > qr.offerPaymentPeriodic) {
+      const numberOfPeriods = precisionMultiply([quote.loanTerm, 12], 0);
+      const totalMonthlySavings = precisionMultiply(
+        [
+          numberOfPeriods,
+          precisionSubtract(
+            [quoteResult.offerPaymentPeriodic, qr.offerPaymentPeriodic],
+            2
+          ),
+        ],
+        2
+      );
+
+      quoteResult.safeRateSavingsLifetime = precisionAdd(
+        [quoteResult.safeRateSavingsLifetime, totalMonthlySavings],
+        2
+      );
+    }
+
+    // calculate monthly savings
+  } else {
+    quoteResult.buyAmount = qr.buyAmount;
+    quoteResult.buyPaymentPeriodic = qr.buyPaymentPeriodic;
+    quoteResult.buyPaymentUpfront = qr.buyPaymentPeriodic;
+    quoteResult.buyRate = qr.buyRate;
+
+    quoteResult.returnAmount = qr.returnAmount;
+    quoteResult.returnPaymentPeriodic = qr.returnPaymentPeriodic;
+    quoteResult.returnPaymentUpfront = qr.returnPaymentPeriodic;
+    quoteResult.returnRate = qr.returnRate;
+
+    quoteResult.offerPaymentPeriodic = qr.offerPaymentPeriodic;
+    quoteResult.offerPaymentUpfront = qr.offerPaymentPeriodic;
+    quoteResult.offerRate = qr.offerRate;
+
+    if (qr.mortgageInsurance) {
+      quoteResult.mortgageInsurance = qr.mortgageInsurance;
+    }
+
+    if (qr.subordinate) {
+      quoteResult.subordinate = qr.subordinate;
+    }
+  }
 };
 
 const getRelevantAdjustments = function (

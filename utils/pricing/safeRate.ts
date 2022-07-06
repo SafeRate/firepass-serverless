@@ -1,4 +1,4 @@
-import { precisionAmoritize } from "../precisionMath";
+import { precisionAmoritize } from "../math/precisionMath";
 
 export type SubordinateQuoteResult = {
   loanAmount: number;
