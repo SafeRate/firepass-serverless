@@ -57,12 +57,17 @@ export type Quote = {
   veteran: boolean;
 };
 
+export type MortgageQuote = {
+  best: QuoteResult;
+  all: QuoteResult[];
+};
+
 export type QuoteResult = {
   adjustments: Adjustment[];
   adjustmentAmount: number;
   adjustmentPayment: number;
   buyAmount: number;
-  buyPaymentUpfront: number;
+  buyPaymentUpfront: number; // Negative if customer is spending money.  Positive if receiving.
   buyPaymentPeriodic: number;
   buyRate: number;
   cashflow: CashflowResult | null;
@@ -74,7 +79,7 @@ export type QuoteResult = {
   mortgageInsurance: MortgageInsuranceQuoteResult | null;
   offerRate: number;
   offerPaymentPeriodic: number;
-  offerPaymentUpfront: number;
+  offerPaymentUpfront: number; // Negative if customer is spending money.  Positive if receiving.
   periodsPerYear: number;
   points: number;
   productType: string;
@@ -82,7 +87,7 @@ export type QuoteResult = {
   propertyTaxes: number;
   propertyValue: number;
   returnAmount: number;
-  returnPaymentUpfront: number;
+  returnPaymentUpfront: number; // Negative if customer is spending money.  Positive if receiving.
   returnPaymentPeriodic: number;
   returnRate: number;
   safeRateSavings: number;
@@ -288,9 +293,14 @@ export enum CheckType {
 export const getProductQuotes = function (
   quote: Quote,
   products: Product[]
-): QuoteResult[] {
+): MortgageQuote {
   // Jumbo (use jumbo loan limit)
   // Conventional
+  let mortgageQuote: MortgageQuote = {
+    all: [],
+    best: [],
+  };
+
   let quoteResults: QuoteResult[] = [];
   let jumboProducts: Product[] = [];
   let fhaProducts: Product[] = [];
@@ -463,13 +473,33 @@ export const getProductQuotes = function (
     0
   ) as number;
 
+  let bestPeriodicPayment = Infinity;
+  let bestQuoteResult = null;
+
   for (let qr = 0; qr < quoteResults.length; qr++) {
-    quoteResults[qr].condoFees = condoFees;
-    quoteResults[qr].homeownersInsurance = homeownersInsurance;
-    quoteResults[qr].propertyTaxes = propertyTaxes;
+    const quoteResult = quoteResults[qr];
+    quoteResult.condoFees = condoFees;
+    quoteResult.homeownersInsurance = homeownersInsurance;
+    quoteResult.propertyTaxes = propertyTaxes;
+
+    if (quoteResult.safeRateSavingsCashflow) {
+      if (Array.isArray(quoteResult.safeRateSavingsCashflow.cashflow)) {
+        if (quoteResult.safeRateSavingsCashflow.cashflow.length > 2) {
+          const firstPeriodicPayment =
+            quoteResult.safeRateSavingsCashflow.cashflow[1];
+          if (firstPeriodicPayment < bestPeriodicPayment) {
+            bestPeriodicPayment = firstPeriodicPayment;
+            bestQuoteResult = quoteResult;
+          }
+        }
+      }
+    }
   }
 
-  return quoteResults;
+  mortgageQuote.best = bestQuoteResult;
+  mortgageQuote.all = quoteResults;
+
+  return mortgageQuote;
 };
 
 export const getStateTaxesAndFees = function (
@@ -1136,15 +1166,27 @@ const getOfferBuyReturnRates = function (
   for (let rp = 0; rp < ratePrices.length; rp++) {
     const ratePrice: RatePrice = ratePrices[rp];
 
-    // To align with adjustments where a cost is + and rebate is -
+    // On rate sheet, price is negative if it returns money to customer
+    // On rate sheet, price is positive if it requires money from customer
+
+    // We negate, so a + indiactes that it returns money to customer
+    // We negate, so a - indicates that it requires money from customer
     const price: number = precisionNegate(ratePrice.price, 6) as any;
+
+    // This is the rate (usually in 1/8 of a %)
     const rate: number = ratePrice.rate;
+
+    // A positive adjustment means a cost to the customer
+    // A ngative adjustments means a return to the customer
+
+    // if spread is positive, that means the consumer has money coming back
+    // if spread is negative, that means the consumer has to spend money
     const spread: number = precisionSubtract(
       [price, totalAdjustment],
       6
     ) as number;
 
-    // Return
+    // Return money to consumer
     if (spread > 0) {
       if (rate < minReturnRate) {
         minReturnRate = rate;
@@ -1261,6 +1303,7 @@ const getOfferBuyReturnRates = function (
   } else if (qr.buyRate > 0) {
     qr.offerRate = qr.buyRate;
     qr.offerPaymentPeriodic = qr.buyPaymentPeriodic;
+
     qr.offerPaymentUpfront = qr.buyPaymentUpfront;
   }
 
@@ -1386,7 +1429,6 @@ const getOfferBuyReturnRates = function (
     quoteResult.safeRateSavingsRate = qr.offerRate;
     quoteResult.safeRateSavingsPaymentPeriodic = qr.offerPaymentPeriodic;
     quoteResult.safeRateSavingsPaymentUpfront = qr.offerPaymentUpfront;
-    quoteResult.safeRateSavingsLifetime = quote.safeRateSavings;
 
     if (quoteResult.offerPaymentPeriodic > qr.offerPaymentPeriodic) {
       const numberOfPeriods = precisionMultiply([quote.loanTerm, 12], 0);
@@ -1401,13 +1443,10 @@ const getOfferBuyReturnRates = function (
         2
       );
 
-      quoteResult.safeRateSavingsLifetime = precisionAdd(
-        [quoteResult.safeRateSavingsLifetime, totalMonthlySavings],
-        2
-      );
+      quoteResult.safeRateSavingsLifetime = totalMonthlySavings;
+    } else {
+      quoteResult.safeRateSavingsLifetime = quote.safeRateSavings;
     }
-
-    // calculate monthly savings
   } else {
     quoteResult.buyAmount = qr.buyAmount;
     quoteResult.buyPaymentPeriodic = qr.buyPaymentPeriodic;

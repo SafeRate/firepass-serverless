@@ -213,7 +213,7 @@ export const precisionCashflow = function (
 
       if (keyPaymentUpfront) {
         feesFinance = new Decimal(keyPaymentUpfront)
-          .times(-1)
+          .times(-1) // Negate because - indicates customer is spenidng money and is a positive outlay.
           .toDecimalPlaces(2)
           .plus(feesFinance)
           .toNumber();

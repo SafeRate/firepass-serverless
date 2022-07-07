@@ -11,6 +11,46 @@ type BankAccount {
   type: String
 }
 
+type CashflowResult {
+  aprFirst: Float
+  aprSecond: Float
+  cashflow: [Float]
+  cashflowFees: [Float]
+  cashflowFeesFinance: [Float]
+  cashflowFeesOrigination: [Float]
+  cashflowInterestFirst: [Float]
+  cashflowInterestSecond: [Float]
+  cashflowInterestTotal: [Float]
+  cashflowMortgageInsurance: [Float]
+  cashflowPandIFirst: [Float]
+  cashflowPandISecond: [Float]
+  cashflowPandITotal: [Float]
+  cashflowPrincipalFirst: [Float]
+  cashflowPrincipalSecond: [Float]
+  cashflowPrincipalTotal: [Float]
+  combinedLoanToValue: [Float]
+  loanToValue: [Float]
+  period: [Float]
+  principalEndingFirst: [Float]
+  principalEndingSecond: [Float]
+  principalStartingFirst: [Float]
+  principalStartingSecond: [Float]
+  totalFees: Float
+  totalFeesFinance: Float
+  totalFeesOrigination: Float
+  totalInterest: Float
+  totalInterestFirst: Float
+  totalInterestSecond: Float
+  totalMortgageInsurance: Float
+  totalPandI: Float
+  totalPandIFirst: Float
+  totalPandISecond: Float
+  totalPrincipal: Float
+  totalPrincipalFirst: Float
+  totalPrincipalSecond: Float
+  year: [Float]  
+}
+
 type Consumer {
   id: ID
   name: ConsumerName
@@ -49,9 +89,76 @@ type InstaTouchIdHandshake {
   carrier: String
 }
 
+type MortgageInsuranceQuoteResult {
+  coverage: String
+  creditScoreBucket: String
+  duration: Float
+  durationType: String
+  ltvBucket: String
+  periodicAmount: Float
+  periodicRate: Float
+  provider: String
+  termBucket: String
+  upfrontAmount: Float
+  upfrontRate: Float  
+}
+
 type OtpPasscode {
   sessionId: String!
   transactionKey: String!
+}
+
+input QuoteInput {
+
+}
+
+type QuoteResult {
+  adjustments: JSON
+  adjustmentAmount: Float
+  adjustmentPayment: Float
+  buyAmount: Float
+  buyPaymentUpfront: Float
+  buyPaymentPeriodic: Float
+  buyRate: Float
+  cashflow: CashflowResult
+  closingCosts: Float
+  condoFees: Float
+  homeownersInsurance: Float
+  loanAmount: Float
+  loanTerm: Float
+  mortgageInsurance: MortgageInsuranceQuoteResult
+  offerRate: Float
+  offerPaymentPeriodic: Float
+  offerPaymentUpfront: Float
+  periodsPerYear: Int
+  points: Float
+  productType: String
+  productName: String
+  propertyTaxes: Float
+  propertyValue: Float
+  returnAmount: Float
+  returnPaymentUpfront: Float
+  returnPaymentPeriodic: Float
+  returnRate: Float
+  safeRateSavings: Float
+  safeRateSavingsCashflow: CashflowResult
+  safeRateSavingsRate: Float
+  safeRateSavingsPaymentPeriodic: Float
+  safeRateSavingsPaymentUpfront: Float
+  safeRateSavingsLifetime: Float
+  subordinate: SubordinateQuoteResult
+  valid: Boolean
+}
+
+type MortgageQuote {
+  
+}
+
+type SubordinateQuoteResult {
+  loanAmount: Float
+  loanTerm: Float
+  periodicPayment: Float
+  rate: Float  
 }
 
 type Query {
