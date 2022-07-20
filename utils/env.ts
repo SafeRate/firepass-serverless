@@ -9,7 +9,9 @@ type Env = {
   AUTH_SAFE_RATE_AUTH0_ENCRYPTION: string;
   EQUIFAX_B2B2C_ACCESS_TOKEN: string;
   EQUIFAX_B2B2C_STAGE: string;
+  EQUIFAX_CUSTOMER_CODE: string;
   EQUIFAX_MERCHANT_ID: string;
+  EQUIFAX_SECURITY_CODE_3DIG: string;
   EQUIFAX_STANDARD_STS_ACCESS_ID: string;
   EQUIFAX_STANDARD_STS_ACCESS_SECRET: string;
   EQUIFAX_STANDARD_STS_ACCOUNT: string;
@@ -27,5 +29,5 @@ type Env = {
 };
 
 export const env: Env = {
-  ...params,
+  ...(params as Env),
 };
