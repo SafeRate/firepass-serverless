@@ -1,6 +1,6 @@
+import { getCreditReport } from "./getCreditReport";
 import { getDocumentById } from "./getDocumentById";
 import { getInstaTouchIdSession } from "./getInstaTouchIdSession";
-import { getOneView } from "./getOneView";
 import { getPlaidLinkToken } from "./getPlaidLinkToken";
 import { getTouchIdOtpPasscode } from "./getTouchIdOtpPasscode";
 import { getUserData } from "./getUserData";
@@ -8,9 +8,9 @@ import { helloWorld } from "./helloWorld";
 import { sandbox } from "./sandbox";
 
 export const Query = {
+  getCreditReport,
   getDocumentById,
   getInstaTouchIdSession,
-  getOneView,
   getPlaidLinkToken,
   getTouchIdOtpPasscode,
   getUserData,

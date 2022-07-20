@@ -504,7 +504,7 @@ export class EquifaxClient {
     return instaTouchIdHandshakeSession;
   };
 
-  public getOneView = async function (userId: string): Promise<string> {
+  public getOneView = async function (consumer: Consumer): Promise<string> {
     const customerConfiguration: EquifaxCustomerConfiguration = {
       equifaxUSConsumerCreditReport: {
         codeDescriptionRequired: true,
@@ -545,9 +545,7 @@ export class EquifaxClient {
     };
 
     const equifaxConsumers: EquifaxRequestConsumers =
-      this.convertConsumerToEquifaxConsumerRequestFormat(
-        await parcelClient.getEquifaxConsumer(userId)
-      );
+      this.convertConsumerToEquifaxConsumerRequestFormat(consumer);
 
     const referenceNumber: string = uuidv4();
 
@@ -580,20 +578,16 @@ export class EquifaxClient {
       );
 
       if (result.data) {
-        if (result?.data?.otpLifecycle?.transactionKey) {
-          returnObj.transactionKey = result.data.otpLifecycle.transactionKey;
+        if (result?.data) {
+          console.log(result.data);
         } else {
-          throw new Error(
-            "Don't have required transaction key for OTP passcode"
-          );
+          throw new Error("Unable to retrieve credit report");
         }
       }
     } catch (error) {
-      console.log("Error in making request");
+      console.log("Error in making request to retrieve credit report");
       console.log(error);
     }
-
-    return returnObj;
 
     return referenceNumber;
   };
