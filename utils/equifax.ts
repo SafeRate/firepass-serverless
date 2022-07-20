@@ -578,11 +578,9 @@ export class EquifaxClient {
       );
 
       if (result.data) {
-        if (result?.data) {
-          console.log(result.data);
-        } else {
-          throw new Error("Unable to retrieve credit report");
-        }
+        console.log(JSON.stringify(result.data));
+      } else {
+        throw new Error("Unable to retrieve credit report");
       }
     } catch (error) {
       console.log("Error in making request to retrieve credit report");
