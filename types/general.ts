@@ -1,4 +1,5 @@
 import { equifaxClient } from "../utils/equifax";
+import { estatedClient } from "../utils/estated";
 import { parcelClient } from "../utils/parcel";
 import { plaidClient } from "../utils/plaid";
 
@@ -23,6 +24,7 @@ export type IScopes = {
 };
 export type Context = {
   equifaxClient: typeof equifaxClient;
+  estatedClient: typeof estatedClient;
   ip: string;
   parcelClient: typeof parcelClient;
   plaidClient: typeof plaidClient;

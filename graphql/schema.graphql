@@ -91,10 +91,12 @@ type Query {
   getInstaTouchIdSession: InstaTouchIdHandshake
   getOneView: String
   getPlaidLinkToken(id: ID): String
+  getPropertyInformation(fullAddress: String!): String
   getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
   getUserData: String
   helloWorld: String
   queryCreditReport(id: ID!, queries: [String]): JSON
+  queryEstated(id: ID!, queries: [String]): JSON
   sandbox(sql: String!, params: JSON): Boolean
 }
 

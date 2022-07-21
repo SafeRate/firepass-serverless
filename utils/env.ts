@@ -17,6 +17,8 @@ type Env = {
   EQUIFAX_STANDARD_STS_ACCOUNT: string;
   EQUIFAX_STANDARD_STS_SECURITY: string;
   EQUIFAX_STANDARD_STS_STAGE: string;
+  ESTATED_URL: string;
+  ESTATED_API_KEY: string;
   PARCEL_APP_ID: string;
   PARCEL_CLIENT_ID: string;
   PARCEL_DATABASE_ID: string;
