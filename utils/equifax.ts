@@ -29,28 +29,34 @@ enum EquifaxScope {
   TALENT_REPORT_EMPLOYMENT = "https://api.equifax.com/business/staffing/v2/talent-reports/employment",
 }
 
-enum ConsentEventType {
+enum EquifaxConsentEventType {
   OPT_IN = "opt-in",
   OPT_OUT = "opt-out",
 }
 
-enum ConsentType {
+enum EquifaxConsentType {
   SMS = "SMS",
   WHITELIST = "whitelist",
 }
 
-enum ConsentMethod {
+enum EquifaxConsentMethod {
   TCO = "TCO",
   TCP = "TCP",
   MA = "MA",
   OTHER = "Other",
 }
 
-enum ConsentServices {
+enum EquifaxRentBuyOwn {
+  BUY = "B",
+  OWN = "O",
+  RENT = "R",
+}
+
+enum EquifaxConsentServices {
   IDENTITY = "identity",
 }
 
-enum IdentityOutputCode {
+enum EquifaxIdentityOutputCode {
   EN = "EN",
   "EN-PF" = "EN-PF",
 }
@@ -67,9 +73,117 @@ type EquifaxInstaTouchIdHandshake = {
 };
 
 enum EquifaxIdentifier {
+  ADDITIONAL = "additional",
   CURRENT = "current",
   FORMER = "former",
 }
+
+enum EquifaxFlagIndicator {
+  YES = "Y",
+  NO = "N",
+}
+
+enum EquifaxCreditReportTradeType {
+  INSTALLMENT = "I",
+  LEASE = "L",
+  LINE_OF_CREDIT = "C",
+  MORTGAGE = "M",
+  OPEN = "O",
+  REVOLVING = "R",
+}
+
+// https://help.cubase.org/cubase/crdtbureauaccttypecodes.htm
+enum EquifaxCreditReportAccountTypeCode {
+  AGRICULTURAL = "7B",
+  ATTORNEY_FEES = 95,
+  AUTO = 0,
+  AUTO_LEASE = "3A",
+  BUSINESS_CREDIT_CARD = "8A",
+  BUSINESS_LINE_PERSONALLY_GUARANTEED = "9B",
+  BUSINESS_LOAN = 10,
+  CHARGE_ACCOUNT = 7,
+  CHILD_SUPPORT = 93,
+  COLLECTION_AGENCY_ATTORNEY = 48,
+  COMBINED_CREDIT_PLAN = 37,
+  COMMERCIAL_INSTALLMENT_LOAN = "6A",
+  COMMERCIAL_LINE_OF_CREDIT = "7A",
+  COMMERCIAL_MORTGAGE_LOAN = "6B",
+  CONSTRUCTION_LOAN = "0F",
+  CONVENTIONAL_REAL_ESTATE_MORTGAGE = 26,
+  CREDIT_CARD = 18,
+  CREDIT_LINE_SECURED = 47,
+  DEBIT_CARD = 43,
+  DEBT_CONSOLIDATION = 91,
+  DEBT_COUNSELING_SERVING = 34,
+  DEBT_PURCHASER = "0C",
+  DEPOSIT_RELATED = "8B",
+  EDUCATIONAL_LOAN = 12,
+  FAMILY_SUPPORT = 50,
+  FARMERS_HOME_ADMIN_MORTGAGE_LOAN = "2C",
+  FHA_HOME_IMPROVEMENT_LOAN = 5,
+  FHA_MORTGAGE_LOAN = 19,
+  FLEXIBLE_SPENDING_CREDIT_CARD = "0G",
+  GOVERNMENT_BENEFIT = 75,
+  GOVERNMENT_EMPLOYEE_ADVANCE = 73,
+  GOVERNMENT_FEE_FOR_SERVICES = 72,
+  GOVERNMENT_FINE = 71,
+  GOVERNMENT_GRANT = 69,
+  GOVERNMENT_MISC_DEBT = 74,
+  GOVERNMENT_OVERPAYMENT = 70,
+  GOVERNMENT_SECURED_DIRECT_LOAN = 68,
+  GOVERNMENT_UNSECURED_DIRECT_LOAN = 67,
+  GOVERNMENT_UNSECURED_GUARANTEED_LOAN = 65,
+  HOME_EQUITY = "6D",
+  HELOC = 89,
+  HOME_IMPROVEMENT = 4,
+  HOUSEHOLD_GOODS = "1C",
+  INSTALLMENT_SALES_CONTRACT = 6,
+  LEASE = 13,
+  LINE_OF_CREDIT = 15,
+  MANUFACTURED_HOUSING = 17,
+  MEDICAL_DEBT = 90,
+  NOTE_LOAN = 20,
+  PARTIALLY_SECURED = 3,
+  REAL_ESTATE_JUNIOR_LIEN = "5A",
+  RECREATIONAL_MERCHANDISE = 11,
+  RENTAL_AGREEMENT = 29,
+  RETURNED_CHECK = 77,
+  SECOND_MORTGAGE = "5B",
+  SECURED_BY_HOUSEHOLD_GOODS = 22,
+  SECURED_BY_HOUSEHOLDS_GOOD_AND_OTHER_COLLATERAL = 23,
+  SECURED_CREDIT_CARD = "2A",
+  SECURED_HOME_IMPROVEMENT = "9A",
+  SECURED = 2,
+  TELECOM_OR_CELLULAR = "4D",
+  TIME_SHARE_LOAN = "0A",
+  UNSECURED = 1,
+  UTILITY_COMPANY = 92,
+  VA_MORTGAGE = 25,
+}
+
+// https://www.experian.com/esolutions/pdf/ARF7-Glossary.pdf
+enum EquifaxCreditReportIndustry {
+  AUTO_RENTAL = "AB",
+  // todo add all definitions
+}
+
+enum EquifaxCreditReportMannerOfPayment {
+  BAD_DEBT = 9,
+  DUE_DAYS_120_PLUS = 5,
+  DUE_PAYMENTS_FOUR = 4,
+  DUE_PAYMENTS_NONE_OR_ONE = 1,
+  DUE_PAYMENTS_THREE = 3,
+  DUE_PAYMENTS_TWO = 2,
+  MAKING_PAYMENTS_UNDER_CONSOLIDATION_AGREEMENT = 7,
+  NEW = 0,
+  NOT_AVAILABLE = "*",
+  REPOSSESSION = 8,
+}
+
+type EquifaxCodeDescription = {
+  code: number | string;
+  description: string;
+};
 
 type EquifaxConsumerCreditRequest = {
   consumers: EquifaxRequestConsumers;
@@ -120,6 +234,178 @@ type EquifaxUSConsumerDataxInquiryRequestAuth = {
   password: string;
 };
 
+export type EquifaxCreditReportParent = {
+  status: EquifaxCreditReportStatus;
+  consumers: EquifaxCreditReportParentConsumers;
+  links: EquifaxCreditLink[];
+};
+
+type EquifaxCreditReportParentConsumers = {
+  equifaxUSConsumerCreditReport: EquifaxCreditReport[];
+};
+
+enum EquifaxCreditReportStatus {
+  COMPLETED = "completed",
+}
+
+type EquifaxCreditLink = {
+  identifier: string;
+  type: string;
+  href: string;
+};
+
+type EquifaxCreditReport = {
+  addresses: EquifaxCreditReportAddress[];
+  addressDiscrepancyIndicator: EquifaxFlagIndicator;
+  age: number;
+  bankruptcies: EquifaxCreditReportBankruptcy[];
+  birthDate: number;
+  collections: EquifaxCreditReportCollection[];
+  customerReferenceNumber: string;
+  customerNumber: string;
+  consumerReferralCode: number;
+  consumerStatements: EquifaxCreditReportConsumerStatement;
+  deathDate: number;
+  ECOAInquiryType: EquifaxECOAInquiryType;
+  employments: EquifaxCreditReportEmployment[];
+  fileSinceDate: number;
+  formerNames: EquifaxConsumerName[];
+  fraudSocialNumAlertCode: EquifaxCodeDescription[];
+  fraudIDScanAlertCodes: EquifaxCodeDescription[];
+  fraudVictimIndicator: EquifaxCodeDescription;
+  hitCode: EquifaxCodeDescription;
+  identifier: string;
+  inquiries: EquifaxCreditReportInquiry[];
+  lastActivityDate: number;
+  linkIndicator: string;
+  models: EquifaxModelScore[];
+  multipleReportIndicator: EquifaxMultipleReportIndicator;
+  nameMatchFlags: EquifaxNameMatchFlags;
+  reportDate: number;
+  subjectName: EquifaxConsumerIdentityName;
+  subjectSocialNum: string;
+  trades: EquifaxCreditReportTrade[];
+};
+
+type EquifaxCreditReportAddress = {
+  addressLine1: string;
+  addressType: EquifaxIdentifier;
+  cityName: string;
+  code?: string;
+  dateFirstReported: number;
+  dateLastReported: number;
+  description?: string;
+  houseNumber: number;
+  rentOwnBuy?: EquifaxRentBuyOwn;
+  sourceOfAddress?: EquifaxCodeDescription;
+  stateAbbreviation: string;
+  streetName: string;
+  streetType: string;
+  telephoneNumber: string;
+  zipCode: number;
+};
+
+type EquifaxCreditReportBankruptcy = {
+  currentDispositionDate: number;
+  currentIntentOrDispositionCode: EquifaxCodeDescription;
+  customerNumber: string;
+  dateFiled: number;
+  dateReported: number;
+  filer: string;
+  industryCode: string;
+  priorIntentOrDispositionCode: EquifaxCodeDescription;
+  type: string;
+};
+
+type EquifaxCreditReportCollection = {
+  accountDesignatorCode: EquifaxCodeDescription;
+  accountNumber: number | string;
+  balance: number;
+  dateAssigned: number;
+  dateReported: number;
+  indicator: string;
+  industryCode: EquifaxCreditReportIndustry;
+  customerNumber: string;
+  clientNameOrNumber: string;
+  creditClassificationCode: EquifaxCodeDescription;
+  dateOfFirstDelinquency: number;
+  narrativeCodes: EquifaxCodeDescription;
+  lastPaymentDate: number;
+  originalAmount: number;
+  rawNarrativeCodes: string[];
+  statusCode: EquifaxCodeDescription[];
+  statusDate: number;
+};
+
+type EquifaxCreditReportConsumerStatement = {
+  dateReported: number;
+  datePurged: number;
+  statement: string;
+};
+
+type EquifaxCreditReportEmployment = {
+  identifier: EquifaxIdentifier;
+  occupation: string;
+  employer: string;
+  dateLastReported: number;
+  dateFirstReported: number;
+};
+
+type EquifaxCreditReportInquiry = {
+  type: string;
+  industryCode: EquifaxCreditReportIndustry;
+  inquiryDate: number;
+  customerNumber: string;
+  customerName: string;
+};
+
+type EquifaxCreditReportTrade = {
+  accountDesignator: EquifaxCodeDescription;
+  accountNumber: number;
+  accountTypeCode: EquifaxCodeDescription;
+  actualPaymentAmount: number;
+  automatedUpdateIndicator: string;
+  balance: number;
+  customerName: string;
+  customerNumber: string;
+  dateMajorDelinquencyFirstReported: number;
+  dateOpened: number;
+  dateReported: number;
+  lastActivityDate: number;
+  lastPaymentDate: number;
+  monthsReviewed: number;
+  narrativeCodes: EquifaxCodeDescription[];
+  ninetyDayCounter: number;
+  pastDueAmount: number;
+  paymentHistory1to24: EquifaxCodeDescription[];
+  previousHighRate;
+  rate: EquifaxCodeDescription;
+  rawNarrativeCode: string[];
+  scheduledPaymentAmount: number;
+  sixtyDayCounter: number;
+  thirtyDayCounter: number;
+  termsDurationCode: EquifaxCodeDescription;
+  termsFrequencyCode: EquifaxCodeDescription;
+};
+
+type EquifaxModelScore = {
+  type: EquifaxModelType;
+  modelNumber: number;
+  score: number;
+  reasons: EquifaxCodeDescription[];
+};
+
+enum EquifaxModelType {
+  MODEL = "MODEL",
+  RISK_BASED_PRICING = "RBP",
+}
+
+type EquifaxNameMatchFlags = {
+  firstNameMatchFlag: EquifaxFlagIndicator;
+  lastNameMatchFlag: EquifaxFlagIndicator;
+  middleNameMatchFlag: EquifaxFlagIndicator;
+};
+
 enum EquifaxMonthsForInquiry {
   MONTHS_3 = "3",
   MONTHS_6 = "6",
@@ -153,15 +439,15 @@ enum EquifaxPlainLanguage {
 
 // TODO: Find documentation
 enum EquifaxECOAInquiryType {
-  AUTHORIZED = "Authorized",
-  DECEASED = "Deceased",
-  INDIVIDUAL = "Individual",
-  JOINT = "Joint",
-  MAKER = "Maker",
-  PARTICIPATING = "Participating",
-  SIGNER = "Signer",
-  TERMINATED = "Terminated",
-  UNDESIGNATED = "Undesignated",
+  AUTHORIZED = "A",
+  DECEASED = "D",
+  INDIVIDUAL = "I",
+  JOINT = "J",
+  MAKER = "M",
+  PARTICIPATING = "P",
+  SIGNER = "S",
+  TERMINATED = "T",
+  UNDESIGNATED = "U",
 }
 
 // TODO: Find documentation
@@ -265,7 +551,7 @@ type EquifaxModel = {
   identifier: EquifaxModelIdentifer;
 };
 
-enum EquifaxModelIdentifer {
+export enum EquifaxModelIdentifer {
   ADVANCED_COMMUNICATIONS = "05721",
   ADVANCED_COMMUNICATIONS_PLUS = "05724",
   ADVANCED_ENERGY_PLUS = "05236",
@@ -349,13 +635,13 @@ type EquifaxRequestConsumers = {
   addresses?: EquifaxRequestConsumerAddress[];
   age?: string[];
   dateOfBirth?: string[];
-  name: EquifaxRequestConsumerName[];
+  name: EquifaxConsumerName[];
   phoneNumbers?: EquifaxRequestConsumerPhone[];
   socialNum?: EquifaxRequestConsumerSocialNumber[];
 };
 
-type EquifaxRequestConsumerName = {
-  identifier: EquifaxIdentifier;
+type EquifaxConsumerName = {
+  identifier?: EquifaxIdentifier;
   firstName: string;
   lastName: string;
   middleName?: string;
@@ -504,7 +790,11 @@ export class EquifaxClient {
     return instaTouchIdHandshakeSession;
   };
 
-  public getOneView = async function (consumer: Consumer): Promise<string> {
+  public getOneView = async function (
+    consumer: Consumer
+  ): Promise<EquifaxCreditReportParent | null> {
+    let returnResult: EquifaxCreditReportParent | null = null;
+
     const customerConfiguration: EquifaxCustomerConfiguration = {
       equifaxUSConsumerCreditReport: {
         codeDescriptionRequired: true,
@@ -578,7 +868,12 @@ export class EquifaxClient {
       );
 
       if (result.data) {
-        console.log(JSON.stringify(result.data));
+        const response: EquifaxCreditReportParent =
+          result.data as EquifaxCreditReportParent;
+
+        if (response.status === EquifaxCreditReportStatus.COMPLETED) {
+          returnResult = response;
+        }
       } else {
         throw new Error("Unable to retrieve credit report");
       }
@@ -587,7 +882,7 @@ export class EquifaxClient {
       console.log(error);
     }
 
-    return referenceNumber;
+    return returnResult;
   };
 
   public getOtpPasscode = async (
@@ -741,10 +1036,10 @@ export class EquifaxClient {
     const isConsentRecorded = await this.recordConsent(
       accessToken,
       sessionId,
-      ConsentEventType.OPT_IN,
-      ConsentType.WHITELIST,
-      ConsentMethod.TCO,
-      [ConsentServices.IDENTITY]
+      EquifaxConsentEventType.OPT_IN,
+      EquifaxConsentType.WHITELIST,
+      EquifaxConsentMethod.TCO,
+      [EquifaxConsentServices.IDENTITY]
     );
 
     if (isConsentRecorded === false) {
@@ -757,7 +1052,7 @@ export class EquifaxClient {
         sessionId,
         SSN,
         zipCode,
-        IdentityOutputCode.EN
+        EquifaxIdentityOutputCode.EN
       );
 
     return consumerIdentity;
@@ -797,7 +1092,7 @@ export class EquifaxClient {
     sessionId: string,
     SSN: string,
     zipCode: string,
-    outputCode: IdentityOutputCode
+    outputCode: EquifaxIdentityOutputCode
   ): Promise<EquifaxConsumerIdentity | null> => {
     const requestPath = `/business/instatouch-identity/v2/user-sessions/user-attributes`;
     const requestUrl = `${this.standardStsUrlBase}${requestPath}`;
@@ -850,10 +1145,10 @@ export class EquifaxClient {
   private recordConsent = async (
     accessToken: string,
     sessionId: string,
-    consentEvent: ConsentEventType,
-    consentType: ConsentType,
-    consentMethod: ConsentMethod,
-    consentForServices: ConsentServices[]
+    consentEvent: EquifaxConsentEventType,
+    consentType: EquifaxConsentType,
+    consentMethod: EquifaxConsentMethod,
+    consentForServices: EquifaxConsentServices[]
   ) => {
     const requestPath = `/business/instatouch-identity/v2/user-sessions/user-consents`;
     const requestUrl = `${this.standardStsUrlBase}${requestPath}`;

@@ -10,7 +10,7 @@ import {
 import { BankAccountFull } from "../types/bankAccountFull";
 import { env } from "./env";
 import { parcelClient, ParcelClient } from "./parcel";
-import { precisionAdd } from "./precisionMath";
+import { precisionAdd } from "./math/precisionMath";
 
 export enum PLAID_ACCOUNT_SUBTYPES {
   CHECKING = "checking",

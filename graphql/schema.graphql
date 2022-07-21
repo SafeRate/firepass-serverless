@@ -54,6 +54,37 @@ type OtpPasscode {
   transactionKey: String!
 }
 
+union CreditReportQueryResult =
+    CreditReportQueryResultString
+  | CreditReportQueryResultBoolean
+  | CreditReportQueryResultInt
+  | CreditReportQueryResultFloat
+
+type CreditReportQueryResultString {
+  query: String!
+  result: String!
+}
+
+type CreditReportQueryResultBoolean {
+  query: String!
+  result: String!
+}
+
+type CreditReportQueryResultInt {
+  query: String!
+  result: Int!
+}
+
+type CreditReportQueryResultFloat {
+  query: String!
+  result: Float!
+}
+
+type CreditReportQueriesResult {
+  id: ID!
+  queryResults: [CreditReportQueryResult]
+}
+
 type Query {
   getCreditReport: String
   getDocumentById(id: ID): String
@@ -63,6 +94,7 @@ type Query {
   getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
   getUserData: String
   helloWorld: String
+  queryCreditReport(id: ID!, queries: [String]): JSON
   sandbox(sql: String!, params: JSON): Boolean
 }
 

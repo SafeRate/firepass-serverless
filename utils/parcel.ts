@@ -347,6 +347,57 @@ export class ParcelClient {
     return userData;
   };
 
+  public getJSONDocumentById = async (id: string) => {
+    const document = await this.getDocumentById(id);
+    if (document) {
+      return JSON.parse(document);
+    } else {
+      return null;
+    }
+  };
+
+  public uploadJSONDocument = async function (
+    title: string,
+    json: any,
+    tags: string[]
+  ): Promise<string> {
+    let result: string = "";
+
+    if (title && json) {
+      const data = json;
+      const documentDetails = {
+        title,
+        tags,
+      };
+
+      try {
+        const localFileName = `${
+          env.STORAGE_TEMP_ROOT
+        }/${uuidv4()}-${title}.json`;
+        await fs.promises.writeFile(localFileName, JSON.stringify(json));
+        const readStream = fs.createReadStream(localFileName);
+
+        const document = await this.parcel.uploadDocument(readStream, {
+          details: documentDetails,
+          toApp: env.PARCEL_APP_ID as AppId,
+        }).finished;
+
+        if (document) {
+          result = document.id;
+        }
+      } catch (error: any) {
+        console.error("Failed to upload document");
+        console.error(error);
+      }
+    } else {
+      throw new Error(
+        "Be sure to pass filename and json to uploadJSONDocument!"
+      );
+    }
+
+    return result;
+  };
+
   private uploadSampleDocument = async function () {
     const data = "Hello private world again again again!";
     const documentDetails = {
@@ -599,8 +650,6 @@ export class ParcelClient {
   private parseEquifaxConsumer = (
     peConsumer: ParcelEquifaxConsumer[] | ParcelEquifaxConsumer
   ): Consumer => {
-    console.log("peConsumer", peConsumer);
-
     if (!peConsumer) {
       return null;
     }
