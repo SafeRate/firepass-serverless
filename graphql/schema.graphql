@@ -2,6 +2,49 @@ scalar Date
 scalar DateTime
 scalar JSON
 
+input FirePassQuoteRequest {
+  auto: Boolean
+  clientId: String
+  flood: Boolean
+  homeowners: Boolean
+  mortgage: MortgageQuoteRequest
+  property: PropertyInput
+}
+
+input MortgageQuoteRequest {
+  annualIncome: Float
+  cashout: Boolean
+  condo: Boolean
+  creditScore: Int
+  debtToIncome: Float
+  firstTimeHomebuyer: Boolean
+  investmentProperty: Boolean
+  loanAmount: Float
+  loanTerm: Int
+  lock: Int
+  manufacturedHome: Boolean
+  monthlyDebt: Float
+  points: Int
+  propertyValue: Float
+  purchase: Boolean
+  primaryResidence: Boolean
+  rateTermOnly: Boolean
+  refinance: Boolean
+  safeRateSavings: Float
+  secondaryResidence: Boolean
+  selfEmployed: Boolean
+  singleFamilyHome: Boolean
+  subordinatedFinancing: Boolean
+  state: String
+  townhome: Boolean
+  units: Int
+  veteran: Boolean
+}
+
+input PropertyInput {
+  address: String
+}
+
 type BankAccount {
   balance: Float!
   id: ID
@@ -89,6 +132,7 @@ type Query {
   getCreditReport: String
   getDocumentById(id: ID): String
   getInstaTouchIdSession: InstaTouchIdHandshake
+  getFirepassQuote(quoteRequest: FirePassQuoteRequest): Boolean
   getOneView: String
   getPlaidLinkToken(id: ID): String
   getPropertyInformation(fullAddress: String!): String
@@ -125,6 +169,5 @@ type Mutation {
 
   createParcelUser(id: String!, email: String!): Boolean
   deleteParcelUser(id: String!): Boolean
-
   helloWorldMutate: String
 }

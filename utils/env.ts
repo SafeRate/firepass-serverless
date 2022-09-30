@@ -19,6 +19,7 @@ type Env = {
   EQUIFAX_STANDARD_STS_STAGE: string;
   ESTATED_URL: string;
   ESTATED_API_KEY: string;
+  HELLOSIGN_API_KEY: string;
   PARCEL_APP_ID: string;
   PARCEL_CLIENT_ID: string;
   PARCEL_DATABASE_ID: string;
@@ -27,6 +28,7 @@ type Env = {
   PLAID_ENVIRONMENT: string;
   PLAID_REDIRECT_URI: string;
   PLAID_SECRET: string;
+  SAFE_RATE_QUOTE_API: string;
   STORAGE_TEMP_ROOT: string;
 };
 
