@@ -1,6 +1,8 @@
 import axios from "axios";
 import { env } from "./env";
 
+// https://estated.com/developers/docs/v4/property/values
+
 export type EstatedProperty = {
   address: EstatedPropertyAddress;
   assessments: EstatedPropertyAssessment[];
