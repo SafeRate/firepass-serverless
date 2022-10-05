@@ -180,7 +180,7 @@ export class ParcelClient {
         console.log("Attempting to create user's properties table...");
 
         const createPropertiesTable = {
-          sql: `CREATE TABLE properties(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, primary INTEGER, address TEXT, address_2 TEXT, city TEXT, state TEXT, zipcode TEXT, display TEXT);`,
+          sql: `CREATE TABLE properties(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, is_primary INTEGER, address TEXT, address_2 TEXT, city TEXT, state TEXT, zipcode TEXT, display TEXT);`,
           params: {},
         };
 
@@ -215,7 +215,7 @@ export class ParcelClient {
         try {
           console.log("Attempting to add index for property.user_id");
           await this.parcel.queryDatabase(databaseId as DatabaseId, {
-            sql: `CREATE UNIQUE INDEX index_properties_user_id ON properties(user_id);`,
+            sql: `CREATE INDEX index_properties_user_id ON properties(user_id);`,
             params: {},
           });
           console.log("Successfully added index on properties(user_id)");
@@ -227,7 +227,7 @@ export class ParcelClient {
         try {
           console.log("Attempting to add index for property.id");
           await this.parcel.queryDatabase(databaseId as DatabaseId, {
-            sql: `CREATE UNIQUE INDEX index_properties_id ON properties(id);`,
+            sql: `CREATE INDEX index_properties_id ON properties(id);`,
             params: {},
           });
           console.log("Successfully added index on properties(id)");
