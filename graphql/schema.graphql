@@ -132,7 +132,7 @@ type Query {
   getCreditReport: String
   getDocumentById(id: ID): String
   getInstaTouchIdSession: InstaTouchIdHandshake
-  getFirepassQuote(quoteRequest: FirePassQuoteRequest): Boolean
+  getFirePassQuote(quoteRequest: FirePassQuoteRequest): Boolean
   getOneView: String
   getPlaidLinkToken(id: ID): String
   getPropertyInformation(fullAddress: String!): String
