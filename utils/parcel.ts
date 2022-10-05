@@ -85,10 +85,12 @@ export class ParcelClient {
   };
 
   public createDatabase = async (
-    users: boolean,
+    automobiles: boolean,
     equifax: boolean,
     plaid: boolean,
-    stripe: boolean
+    properties: boolean,
+    stripe: boolean,
+    users: boolean
   ): Promise<boolean> => {
     let noError = true;
     let databaseId = env.PARCEL_DATABASE_ID;
@@ -170,6 +172,67 @@ export class ParcelClient {
           console.log("Successfully added index on users(company_id)");
         } catch (error) {
           console.log("Failed to add index on users(company_id);");
+          console.log(error);
+        }
+      }
+
+      if (properties) {
+        console.log("Attempting to create user's properties table...");
+
+        const createPropertiesTable = {
+          sql: `CREATE TABLE properties(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, primary INTEGER, address TEXT, address_2 TEXT, city TEXT, state TEXT, zipcode TEXT, display TEXT);`,
+          params: {},
+        };
+
+        try {
+          const propertiesCreateResult = await this.parcel.queryDatabase(
+            databaseId as DatabaseId,
+            createPropertiesTable
+          );
+
+          console.log("Sucessfully created properties table!");
+          console.log(propertiesCreateResult);
+        } catch (error) {
+          console.log("Failed to create properties table!");
+          console.log(error);
+          noError = false;
+        }
+
+        try {
+          console.log(
+            "Attempting to add unique constraint for property.user_id, property.id"
+          );
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_properties_id_user_id ON properties(user_id, id);`,
+            params: {},
+          });
+          console.log("Successfully added index on properties(id)");
+        } catch (error) {
+          console.log("Failed to add index on properties(id);");
+          console.log(error);
+        }
+
+        try {
+          console.log("Attempting to add index for property.user_id");
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_properties_user_id ON properties(user_id);`,
+            params: {},
+          });
+          console.log("Successfully added index on properties(user_id)");
+        } catch (error) {
+          console.log("Failed to add index on properties(user_id);");
+          console.log(error);
+        }
+
+        try {
+          console.log("Attempting to add index for property.id");
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_properties_id ON properties(id);`,
+            params: {},
+          });
+          console.log("Successfully added index on properties(id)");
+        } catch (error) {
+          console.log("Failed to add index on properties(id);");
           console.log(error);
         }
       }

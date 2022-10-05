@@ -12,6 +12,7 @@ export const getPropertyInformation: QueryResolvers["getPropertyInformation"] =
 
     if (estatedProperty) {
       const id = uuidv4();
+      estatedProperty.id = id;
 
       const document = await context.parcelClient.uploadJSONDocument(
         id,

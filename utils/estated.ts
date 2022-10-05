@@ -8,6 +8,7 @@ export type EstatedProperty = {
   assessments: EstatedPropertyAssessment[];
   boundary: EstatedPropertyBoundary;
   deeds: EstatedPropertyDeed[];
+  id: string;
   market_assessments: EstatedPropertyAssessment[];
   metadata: EstatedPropertyMetadata;
   owner: EstatedPropertyOwner;
