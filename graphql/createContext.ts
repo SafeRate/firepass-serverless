@@ -12,7 +12,7 @@ export const createContext = async (req: ExpressContext["req"]) => {
     user = {
       auth: "authyo",
       emailVerified: true,
-      email: "test@test.com",
+      email: "dylhallan@gmail.com",
       firstName: "Test",
       id: "0000-0000-0000-0000-0000-0000-0000-0000",
       lastName: "User",

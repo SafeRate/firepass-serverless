@@ -124,7 +124,7 @@ export class ParcelClient {
       if (users) {
         console.log("Attempting to create users table...");
         const createUsersTable = {
-          sql: `CREATE TABLE users(id TEXT, company_id TEXT, created DATETIME, updated DATETIME, email TEXT, mobile TEXT);`,
+          sql: `CREATE TABLE users(id TEXT, auth TEXT, created DATETIME, updated DATETIME, email TEXT, mobile TEXT);`,
           params: {},
         };
 
@@ -166,14 +166,14 @@ export class ParcelClient {
           console.log(error);
         }
         try {
-          console.log("Attempting to add an index for users.company_id");
+          console.log("Attempting to add an index for users.auth");
           await this.parcel.queryDatabase(databaseId as DatabaseId, {
-            sql: `CREATE UNIQUE INDEX index_users_company_id ON users(company_id);`,
+            sql: `CREATE UNIQUE INDEX index_users_auth ON users(auth);`,
             params: {},
           });
-          console.log("Successfully added index on users(company_id)");
+          console.log("Successfully added index on users(auth)");
         } catch (error) {
-          console.log("Failed to add index on users(company_id);");
+          console.log("Failed to add index on users(auth);");
           console.log(error);
         }
       }
@@ -189,10 +189,20 @@ export class ParcelClient {
             databaseId as DatabaseId,
             createCompaniesTable
           );
+
+          console.log("Sucessfully created companies table");
         } catch (error) {
           console.log("Unable to create companies table");
           console.log(error);
         }
+
+        try {
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_companies_website ON companies(website);`,
+            params: {},
+          });
+          console.log("Successfully added index on companies(website)");
+        } catch (error) {}
       }
 
       if (permissions) {
@@ -693,7 +703,48 @@ export class ParcelClient {
     }
   };
 
-  public insertUser = async (id: string, email: string) => {
+  public insertCompany = async (
+    id: string,
+    name: string,
+    website: string,
+    privacyPolicy: string
+  ) => {
+    const $created = new Date();
+    const $updated = $created;
+    const $id = id;
+    const $name = name;
+    const $website = website;
+    const $privacy_policy = privacyPolicy;
+
+    let insertStatement = {
+      sql: "INSERT INTO companies VALUES ($id, $created, $updated, $name, $website, $privacy_policy);",
+      params: {
+        $created,
+        $updated,
+        $id,
+        $name,
+        $website,
+        $privacy_policy,
+      },
+    };
+
+    try {
+      await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        insertStatement
+      );
+    } catch (error) {
+      console.log("Unable to create companies table");
+      console.log(error);
+    }
+  };
+
+  public insertUser = async (
+    id: string,
+    email: string,
+    mobile: string,
+    auth: string
+  ) => {
     const $created = new Date();
     const $updated = $created;
     const params = {
@@ -701,10 +752,12 @@ export class ParcelClient {
       $email: email,
       $created,
       $updated,
+      $auth: auth,
+      $mobile: mobile ? mobile : "",
     };
 
     let insertStatement = {
-      sql: "INSERT INTO users VALUES ($id, $created, $updated, $email)",
+      sql: "INSERT INTO users VALUES ($id, $auth, $created, $updated, $email, $mobile)",
       params,
     };
 
