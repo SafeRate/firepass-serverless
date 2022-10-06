@@ -1,5 +1,7 @@
 import { Consumer, QueryResolvers } from "../../types/resolverTypes";
-import { EquifaxCreditReportParent } from "../../utils/equifax";
+import { equifaxClient, EquifaxCreditReportParent } from "../../utils/equifax";
+import { v4 as uuidv4 } from "uuid";
+import { parcelClient } from "../../utils/parcel";
 
 export const getCreditReport: QueryResolvers["getCreditReport"] = async (
   _parent,
@@ -35,13 +37,22 @@ export const getCreditReport: QueryResolvers["getCreditReport"] = async (
         creditReportParent.consumers.equifaxUSConsumerCreditReport[0]
           .customerReferenceNumber;
 
-      const documentId = await context.parcelClient.uploadJSONDocument(
-        returnResult,
-        creditReportParent,
-        [returnResult]
-      );
+      const id = uuidv4();
 
-      return documentId;
+      try {
+        await context.parcelClient.insertCreditReport(id, context.user.id);
+        const documentId = await context.parcelClient.uploadJSONDocument(
+          id,
+          creditReportParent,
+          [id, returnResult]
+        );
+
+        console.log("Added credit report");
+        return documentId;
+      } catch (error) {
+        console.log("Unable to add credit report");
+        console.log(error);
+      }
     }
   } else {
     throw new Error("Could not obtain credit report");

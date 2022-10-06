@@ -342,6 +342,20 @@ export class ParcelClient {
           console.log(error);
           noError = false;
         }
+
+        try {
+          console.log(
+            "Attempting to add an index for equifax_credit_reports.id"
+          );
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_equifax_credit_reports_id ON equifax_credit_reports(id);`,
+            params: {},
+          });
+          console.log("Successfully added index on equifax_credit_reports(id)");
+        } catch (error) {
+          console.log("Failed to add index on equifax_credit_reports(id)");
+          console.log(error);
+        }
       }
     }
 
@@ -700,6 +714,32 @@ export class ParcelClient {
       );
       console.log(error);
       throw new Error(error);
+    }
+  };
+
+  public insertCreditReport = async (id: string, userId: string) => {
+    const $timestamp = new Date();
+    const $user_id = userId;
+    const $id = id;
+
+    let insertStatement = {
+      sql: "INSERT INTO equifax_credit_reports VALUES ($user_id, $id, $timestamp);",
+      params: {
+        $user_id,
+        $id,
+        $timestamp,
+      },
+    };
+
+    try {
+      await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        insertStatement
+      );
+    } catch (error) {
+      console.log("Unable to create credit repots");
+      console.log(error);
+      throw error;
     }
   };
 
