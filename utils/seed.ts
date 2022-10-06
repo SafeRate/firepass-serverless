@@ -4,8 +4,8 @@
 //     "sql": "INSERT INTO users VALUES ($id, $auth, $created, $updated, $email, $mobile);",
 //     "params": {
 //         "$id" : "0000-0000-0000-0000-0000-0000-0000-0000",
-//         "$created" : "2022-10-06T12:00:00",
-//         "$updated" : "2022-10-06T12:00:00",
+//         "$created" : "2022-10-06T21:18:55.478Z",
+//         "$updated" : "2022-10-06T21:18:55.478Z",
 //         "$email" : "dylhallan@gmail.com",
 //         "$mobile" : "312-248-0234",
 //         "$auth" : "auth0|61b22e4461f02a006b86f390"
@@ -15,8 +15,8 @@
 // {
 //     "sql": "INSERT INTO companies VALUES ($id, $created, $updated, $name, $website, $privacy_policy);",
 //     "params": {
-//       "$created" : "2022-10-06T12:00:00",
-//       "$updated" : "2022-10-06T12:00:00",
+//       "$created" : "2022-10-06T21:18:55.478Z",
+//       "$updated" : "2022-10-06T21:18:55.478Z",
 //       "$id" : "0000-0000-0000-0000-0000-0000-0000-0001",
 //       "$name" : "Safe Rate Inc.",
 //       "$website" : "https://saferate.com",

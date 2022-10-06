@@ -25,21 +25,21 @@ export const getPropertyInformation: QueryResolvers["getPropertyInformation"] =
       }`;
 
       try {
-        await parcelClient.insertUserProperty(
+        const documentId = await context.parcelClient.uploadJSONDocument(
           display,
-          id,
-          false,
-          context.user.id
-        );
-
-        const document = await context.parcelClient.uploadJSONDocument(
-          id,
           estatedProperty,
-          [id, display]
+          [display]
         );
 
-        if (document) {
-          returnResult = document;
+        if (documentId) {
+          await parcelClient.insertUserProperty(
+            display,
+            documentId,
+            false,
+            context.user.id
+          );
+
+          returnResult = documentId;
           console.log(
             `successfully added ${display} for user ${context.user.id} as property ${id}`
           );

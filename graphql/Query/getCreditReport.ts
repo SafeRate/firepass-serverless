@@ -37,14 +37,16 @@ export const getCreditReport: QueryResolvers["getCreditReport"] = async (
         creditReportParent.consumers.equifaxUSConsumerCreditReport[0]
           .customerReferenceNumber;
 
-      const id = uuidv4();
-
       try {
-        await context.parcelClient.insertCreditReport(id, context.user.id);
         const documentId = await context.parcelClient.uploadJSONDocument(
-          id,
+          returnResult,
           creditReportParent,
-          [id, returnResult]
+          [returnResult]
+        );
+
+        await context.parcelClient.insertCreditReport(
+          documentId,
+          context.user.id
         );
 
         console.log("Added credit report");
