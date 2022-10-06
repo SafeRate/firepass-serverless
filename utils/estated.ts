@@ -211,6 +211,7 @@ export class EstatedClient {
 
     try {
       const results = await axios.get(url);
+
       if (results.data) {
         if (results.data.data) {
           returnValue = results.data.data as EstatedProperty;

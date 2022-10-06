@@ -86,7 +86,9 @@ export class ParcelClient {
 
   public createDatabase = async (
     automobiles: boolean,
+    companies: boolean,
     equifax: boolean,
+    permissions: boolean,
     plaid: boolean,
     properties: boolean,
     stripe: boolean,
@@ -176,11 +178,35 @@ export class ParcelClient {
         }
       }
 
+      if (companies) {
+        const createCompaniesTable = {
+          sql: `CREATE TABLE companies(id TEXT, created DATETIME, updated DATETIME, name TEXT, website TEXT, privacy_policy TEXT);`,
+          params: {},
+        };
+
+        try {
+          await this.parcel.queryDatabase(
+            databaseId as DatabaseId,
+            createCompaniesTable
+          );
+        } catch (error) {
+          console.log("Unable to create companies table");
+          console.log(error);
+        }
+      }
+
+      if (permissions) {
+        const createUserPermissionsTable = {
+          sql: `CREATE TABLE users_permissions(user_id TEXT, id TEXT, company_id TEXT, granted DATETIME, rejected DATETIME, item_type TEXT, item_id);`,
+          params: {},
+        };
+      }
+
       if (properties) {
         console.log("Attempting to create user's properties table...");
 
         const createPropertiesTable = {
-          sql: `CREATE TABLE properties(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, is_primary INTEGER, address TEXT, address_2 TEXT, city TEXT, state TEXT, zipcode TEXT, display TEXT);`,
+          sql: `CREATE TABLE properties(user_id TEXT, id TEXT, created DATETIME, updated DATETIME, is_primary INTEGER, display TEXT);`,
           params: {},
         };
 
@@ -209,6 +235,22 @@ export class ParcelClient {
           console.log("Successfully added index on properties(id)");
         } catch (error) {
           console.log("Failed to add index on properties(id);");
+          console.log(error);
+        }
+
+        try {
+          console.log(
+            "Attempting to add unique constraint for property.user_id, property.id"
+          );
+          await this.parcel.queryDatabase(databaseId as DatabaseId, {
+            sql: `CREATE UNIQUE INDEX index_properties_user_id_display ON properties(user_id, display);`,
+            params: {},
+          });
+          console.log(
+            "Successfully added index on properties(user_id, display)"
+          );
+        } catch (error) {
+          console.log("Failed to add index on properties(user_id, display);");
           console.log(error);
         }
 
@@ -273,20 +315,20 @@ export class ParcelClient {
           console.log(error);
         }
 
-        const createEquifaxGrantsTable = {
-          sql: `CREATE TABLE equifax_consents(id TEXT, consumers_id TEXT, ip TEXT, user_agent TEXT, inquiry_type TEXT, timestamp DATETIME, consent_text TEXT, document_type TEXT, document_raw_id TEXT, document_anonymous_id TEXT);`,
+        const createEquifaxCreditReportsTable = {
+          sql: `CREATE TABLE equifax_credit_reports(user_id TEXT, id TEXT, timestamp DATETIME);`,
           params: {},
         };
 
         try {
-          const equifaxGrantResult = await this.parcel.queryDatabase(
+          const equifaxCreditReportsResult = await this.parcel.queryDatabase(
             databaseId as DatabaseId,
-            createEquifaxGrantsTable
+            createEquifaxCreditReportsTable
           );
-          console.log("Successfully created equifax consents table!");
-          console.log(equifaxGrantResult);
+          console.log("Successfully created equifax credit reports table!");
+          console.log(equifaxCreditReportsResult);
         } catch (error) {
-          console.log("Failed to create equifax consents table!");
+          console.log("Failed to create equifax credit reports table!");
           console.log(error);
           noError = false;
         }
@@ -607,6 +649,47 @@ export class ParcelClient {
         "Unable to insert equifax consumer.  See following error message for more guidance."
       );
       console.log(error);
+    }
+  };
+
+  public insertUserProperty = async (
+    display: string,
+    id: string,
+    isPrimary: boolean,
+    userId: string
+  ) => {
+    const $created = new Date();
+    const $updated = $created;
+    const $id = id;
+    const $user_id = userId;
+    const $is_primary = isPrimary ? 1 : 0;
+    const $display = display;
+
+    let insertStatement = {
+      sql: "INSERT INTO properties VALUES ($user_id, $id, $created, $updated, $is_primary, $display)",
+      params: {
+        $id,
+        $user_id,
+        $created,
+        $updated,
+        $is_primary,
+        $display,
+      },
+    };
+
+    try {
+      const result = await this.parcel.queryDatabase(
+        env.PARCEL_DATABASE_ID as DatabaseId,
+        insertStatement
+      );
+
+      return result;
+    } catch (error) {
+      console.log(
+        "Unable to insert user property.  See following error message for more guidance."
+      );
+      console.log(error);
+      throw new Error(error);
     }
   };
 
