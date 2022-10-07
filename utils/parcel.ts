@@ -476,6 +476,16 @@ export class ParcelClient {
     return userData;
   };
 
+  public getUserProperty = async function (id: string, userId) {
+    const reports = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
+      sql: "SELECT * FROM properties WHERE user_id = $user_id AND id = $id;",
+      params: {
+        $id: id,
+        $user_id: userId,
+      },
+    });
+  };
+
   public getJSONDocumentById = async (id: string) => {
     const document = await this.getDocumentById(id);
     if (document) {
