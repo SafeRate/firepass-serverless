@@ -254,7 +254,7 @@ type EquifaxCreditLink = {
   href: string;
 };
 
-type EquifaxCreditReport = {
+export type EquifaxCreditReport = {
   addresses: EquifaxCreditReportAddress[];
   addressDiscrepancyIndicator: EquifaxFlagIndicator;
   age: number;

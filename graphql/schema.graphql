@@ -3,12 +3,8 @@ scalar DateTime
 scalar JSON
 
 input FirePassQuoteRequest {
-  auto: Boolean
-  clientId: String
-  flood: Boolean
-  homeowners: Boolean
-  mortgage: MortgageQuoteRequest
-  property: PropertyInput
+  creditId: String
+  propertyId: String
 }
 
 input MortgageQuoteRequest {
@@ -131,8 +127,8 @@ type CreditReportQueriesResult {
 type Query {
   getCreditReport: String
   getDocumentById(id: ID): String
+  getFirePassQuote(quoteRequest: FirePassQuoteRequest): String
   getInstaTouchIdSession: InstaTouchIdHandshake
-  getFirePassQuote(quoteRequest: FirePassQuoteRequest): Boolean
   getOneView: String
   getPlaidLinkToken(id: ID): String
   getPropertyInformation(fullAddress: String!): String

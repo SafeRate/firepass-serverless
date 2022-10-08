@@ -11,10 +11,12 @@ import * as fs from "fs";
 import {
   EquifaxConsumerIdentity,
   EquifaxConsumerIdentityAddress,
+  EquifaxCreditReportParent,
   EquifaxCurrentDesignator,
 } from "./equifax";
 import { Consumer } from "../types/resolverTypes";
 import { BankAccountFull } from "../types/bankAccountFull";
+import { EstatedProperty } from "./estated";
 
 export type ParcelBankAccount = {
   account_access_token?: string;
@@ -476,7 +478,43 @@ export class ParcelClient {
     return userData;
   };
 
-  public getUserProperty = async function (id: string, userId) {
+  public getUserCreditReport = async function (
+    id: string,
+    userId: string
+  ): Promise<EquifaxCreditReportParent | null> {
+    let result: EquifaxCreditReportParent | null = null;
+
+    const reports = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
+      sql: "SELECT * FROM equifax_credit_reports WHERE user_id = $user_id AND id = $id;",
+      params: {
+        $id: id,
+        $user_id: userId,
+      },
+    });
+
+    if (reports && Array.isArray(reports) && reports.length > 0) {
+      const document: EquifaxCreditReportParent | null =
+        (await this.getJSONDocumentById(
+          id
+        )) as EquifaxCreditReportParent | null;
+      if (document) {
+        result = document;
+      } else {
+        throw new Error(`Could not find identified credit report`);
+      }
+    } else {
+      throw new Error(`Could not find credit report associated with user`);
+    }
+
+    return result;
+  };
+
+  public getUserProperty = async function (
+    id: string,
+    userId
+  ): Promise<EstatedProperty | null> {
+    let result: EstatedProperty | null = null;
+
     const reports = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
       sql: "SELECT * FROM properties WHERE user_id = $user_id AND id = $id;",
       params: {
@@ -484,6 +522,21 @@ export class ParcelClient {
         $user_id: userId,
       },
     });
+
+    if (reports && Array.isArray(reports) && reports.length > 0) {
+      const document: EstatedProperty | null = (await this.getJSONDocumentById(
+        id
+      )) as EstatedProperty | null;
+      if (document) {
+        result = document;
+      } else {
+        throw new Error(`Could not find identified property`);
+      }
+    } else {
+      throw new Error(`Could not find property associated with user`);
+    }
+
+    return result;
   };
 
   public getJSONDocumentById = async (id: string) => {
