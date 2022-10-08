@@ -5,6 +5,7 @@ export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -65,11 +66,89 @@ export type ConsumerName = {
   lastName?: Maybe<Scalars['String']>;
 };
 
+export type CreditReportQueriesResult = {
+  __typename?: 'CreditReportQueriesResult';
+  id: Scalars['ID'];
+  queryResults?: Maybe<Array<Maybe<CreditReportQueryResult>>>;
+};
+
+export type CreditReportQueryResult = CreditReportQueryResultBoolean | CreditReportQueryResultFloat | CreditReportQueryResultInt | CreditReportQueryResultString;
+
+export type CreditReportQueryResultBoolean = {
+  __typename?: 'CreditReportQueryResultBoolean';
+  query: Scalars['String'];
+  result: Scalars['String'];
+};
+
+export type CreditReportQueryResultFloat = {
+  __typename?: 'CreditReportQueryResultFloat';
+  query: Scalars['String'];
+  result: Scalars['Float'];
+};
+
+export type CreditReportQueryResultInt = {
+  __typename?: 'CreditReportQueryResultInt';
+  query: Scalars['String'];
+  result: Scalars['Int'];
+};
+
+export type CreditReportQueryResultString = {
+  __typename?: 'CreditReportQueryResultString';
+  query: Scalars['String'];
+  result: Scalars['String'];
+};
+
+export type FirePassQuoteRequest = {
+  auto?: InputMaybe<Scalars['Boolean']>;
+  autoIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  creditId?: InputMaybe<Scalars['String']>;
+  flood?: InputMaybe<Scalars['Boolean']>;
+  homeowners?: InputMaybe<Scalars['Boolean']>;
+  mortgage?: InputMaybe<Scalars['Boolean']>;
+  mortgageOptions?: InputMaybe<MortgageQuoteRequest>;
+  propertyId?: InputMaybe<Scalars['String']>;
+};
+
 export type InstaTouchIdHandshake = {
   __typename?: 'InstaTouchIdHandshake';
   carrier?: Maybe<Scalars['String']>;
   instaTouch: Scalars['String'];
   sessionId: Scalars['String'];
+};
+
+export type MortgageQuoteRequest = {
+  annualIncome?: InputMaybe<Scalars['Int']>;
+  cashout?: InputMaybe<Scalars['Boolean']>;
+  combinedLoanToValue?: InputMaybe<Scalars['Float']>;
+  condo?: InputMaybe<Scalars['Boolean']>;
+  creditScore?: InputMaybe<Scalars['Int']>;
+  debtToIncome?: InputMaybe<Scalars['Float']>;
+  firstTimeHomebuyer?: InputMaybe<Scalars['Boolean']>;
+  investmentProperty?: InputMaybe<Scalars['Boolean']>;
+  loanAmount?: InputMaybe<Scalars['Float']>;
+  loanTerm?: InputMaybe<Scalars['Int']>;
+  loanToValue?: InputMaybe<Scalars['Float']>;
+  lock?: InputMaybe<Scalars['Int']>;
+  manufacturedHome?: InputMaybe<Scalars['Boolean']>;
+  monthlyDebt?: InputMaybe<Scalars['Float']>;
+  points?: InputMaybe<Scalars['Int']>;
+  primaryResidence?: InputMaybe<Scalars['Boolean']>;
+  propertyValue?: InputMaybe<Scalars['Float']>;
+  purchase?: InputMaybe<Scalars['Boolean']>;
+  rateTermOnly?: InputMaybe<Scalars['Boolean']>;
+  refinance?: InputMaybe<Scalars['Boolean']>;
+  safeRateSavings?: InputMaybe<Scalars['Float']>;
+  secondaryResidence?: InputMaybe<Scalars['Boolean']>;
+  selfEmployed?: InputMaybe<Scalars['Boolean']>;
+  singleFamilyHome?: InputMaybe<Scalars['Boolean']>;
+  state?: InputMaybe<Scalars['String']>;
+  subordinateAmount?: InputMaybe<Scalars['Float']>;
+  subordinateLoanTerm?: InputMaybe<Scalars['Float']>;
+  subordinatedFinancing?: InputMaybe<Scalars['Boolean']>;
+  townhome?: InputMaybe<Scalars['Boolean']>;
+  units?: InputMaybe<Scalars['Int']>;
+  vaFirst?: InputMaybe<Scalars['Boolean']>;
+  veteran?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type Mutation = {
@@ -131,15 +210,24 @@ export type OtpPasscode = {
   transactionKey: Scalars['String'];
 };
 
+export type PropertyInput = {
+  address?: InputMaybe<Scalars['String']>;
+};
+
 export type Query = {
   __typename?: 'Query';
+  getCreditReport?: Maybe<Scalars['String']>;
   getDocumentById?: Maybe<Scalars['String']>;
+  getFirePassQuote?: Maybe<Scalars['String']>;
   getInstaTouchIdSession?: Maybe<InstaTouchIdHandshake>;
   getOneView?: Maybe<Scalars['String']>;
   getPlaidLinkToken?: Maybe<Scalars['String']>;
+  getPropertyInformation?: Maybe<Scalars['String']>;
   getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
   getUserData?: Maybe<Scalars['String']>;
   helloWorld?: Maybe<Scalars['String']>;
+  queryCreditReport?: Maybe<Scalars['JSON']>;
+  queryEstated?: Maybe<Scalars['JSON']>;
   sandbox?: Maybe<Scalars['Boolean']>;
 };
 
@@ -149,14 +237,36 @@ export type QueryGetDocumentByIdArgs = {
 };
 
 
+export type QueryGetFirePassQuoteArgs = {
+  quoteRequest?: InputMaybe<FirePassQuoteRequest>;
+};
+
+
 export type QueryGetPlaidLinkTokenArgs = {
   id?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type QueryGetPropertyInformationArgs = {
+  fullAddress: Scalars['String'];
 };
 
 
 export type QueryGetTouchIdOtpPasscodeArgs = {
   mobileNumber: Scalars['String'];
   sessionId: Scalars['String'];
+};
+
+
+export type QueryQueryCreditReportArgs = {
+  id: Scalars['ID'];
+  queries?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+
+export type QueryQueryEstatedArgs = {
+  id: Scalars['ID'];
+  queries?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
 };
 
 
@@ -242,14 +352,24 @@ export type ResolversTypes = ResolversObject<{
   ConsumerContact: ResolverTypeWrapper<ConsumerContact>;
   ConsumerIdentification: ResolverTypeWrapper<ConsumerIdentification>;
   ConsumerName: ResolverTypeWrapper<ConsumerName>;
+  CreditReportQueriesResult: ResolverTypeWrapper<Omit<CreditReportQueriesResult, 'queryResults'> & { queryResults?: Maybe<Array<Maybe<ResolversTypes['CreditReportQueryResult']>>> }>;
+  CreditReportQueryResult: ResolversTypes['CreditReportQueryResultBoolean'] | ResolversTypes['CreditReportQueryResultFloat'] | ResolversTypes['CreditReportQueryResultInt'] | ResolversTypes['CreditReportQueryResultString'];
+  CreditReportQueryResultBoolean: ResolverTypeWrapper<CreditReportQueryResultBoolean>;
+  CreditReportQueryResultFloat: ResolverTypeWrapper<CreditReportQueryResultFloat>;
+  CreditReportQueryResultInt: ResolverTypeWrapper<CreditReportQueryResultInt>;
+  CreditReportQueryResultString: ResolverTypeWrapper<CreditReportQueryResultString>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
+  FirePassQuoteRequest: FirePassQuoteRequest;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   InstaTouchIdHandshake: ResolverTypeWrapper<InstaTouchIdHandshake>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
+  MortgageQuoteRequest: MortgageQuoteRequest;
   Mutation: ResolverTypeWrapper<{}>;
   OtpPasscode: ResolverTypeWrapper<OtpPasscode>;
+  PropertyInput: PropertyInput;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
 }>;
@@ -263,14 +383,24 @@ export type ResolversParentTypes = ResolversObject<{
   ConsumerContact: ConsumerContact;
   ConsumerIdentification: ConsumerIdentification;
   ConsumerName: ConsumerName;
+  CreditReportQueriesResult: Omit<CreditReportQueriesResult, 'queryResults'> & { queryResults?: Maybe<Array<Maybe<ResolversParentTypes['CreditReportQueryResult']>>> };
+  CreditReportQueryResult: ResolversParentTypes['CreditReportQueryResultBoolean'] | ResolversParentTypes['CreditReportQueryResultFloat'] | ResolversParentTypes['CreditReportQueryResultInt'] | ResolversParentTypes['CreditReportQueryResultString'];
+  CreditReportQueryResultBoolean: CreditReportQueryResultBoolean;
+  CreditReportQueryResultFloat: CreditReportQueryResultFloat;
+  CreditReportQueryResultInt: CreditReportQueryResultInt;
+  CreditReportQueryResultString: CreditReportQueryResultString;
   Date: Scalars['Date'];
   DateTime: Scalars['DateTime'];
+  FirePassQuoteRequest: FirePassQuoteRequest;
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   InstaTouchIdHandshake: InstaTouchIdHandshake;
+  Int: Scalars['Int'];
   JSON: Scalars['JSON'];
+  MortgageQuoteRequest: MortgageQuoteRequest;
   Mutation: {};
   OtpPasscode: OtpPasscode;
+  PropertyInput: PropertyInput;
   Query: {};
   String: Scalars['String'];
 }>;
@@ -322,6 +452,40 @@ export type ConsumerNameResolvers<ContextType = Context, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CreditReportQueriesResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueriesResult'] = ResolversParentTypes['CreditReportQueriesResult']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  queryResults?: Resolver<Maybe<Array<Maybe<ResolversTypes['CreditReportQueryResult']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreditReportQueryResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueryResult'] = ResolversParentTypes['CreditReportQueryResult']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'CreditReportQueryResultBoolean' | 'CreditReportQueryResultFloat' | 'CreditReportQueryResultInt' | 'CreditReportQueryResultString', ParentType, ContextType>;
+}>;
+
+export type CreditReportQueryResultBooleanResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueryResultBoolean'] = ResolversParentTypes['CreditReportQueryResultBoolean']> = ResolversObject<{
+  query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  result?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreditReportQueryResultFloatResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueryResultFloat'] = ResolversParentTypes['CreditReportQueryResultFloat']> = ResolversObject<{
+  query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  result?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreditReportQueryResultIntResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueryResultInt'] = ResolversParentTypes['CreditReportQueryResultInt']> = ResolversObject<{
+  query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  result?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CreditReportQueryResultStringResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreditReportQueryResultString'] = ResolversParentTypes['CreditReportQueryResultString']> = ResolversObject<{
+  query?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  result?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
@@ -358,13 +522,18 @@ export type OtpPasscodeResolvers<ContextType = Context, ParentType extends Resol
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  getCreditReport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getDocumentById?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetDocumentByIdArgs>>;
+  getFirePassQuote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetFirePassQuoteArgs>>;
   getInstaTouchIdSession?: Resolver<Maybe<ResolversTypes['InstaTouchIdHandshake']>, ParentType, ContextType>;
   getOneView?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getPlaidLinkToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetPlaidLinkTokenArgs>>;
+  getPropertyInformation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryGetPropertyInformationArgs, 'fullAddress'>>;
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
   getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  queryCreditReport?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType, RequireFields<QueryQueryCreditReportArgs, 'id'>>;
+  queryEstated?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType, RequireFields<QueryQueryEstatedArgs, 'id'>>;
   sandbox?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<QuerySandboxArgs, 'sql'>>;
 }>;
 
@@ -375,6 +544,12 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   ConsumerContact?: ConsumerContactResolvers<ContextType>;
   ConsumerIdentification?: ConsumerIdentificationResolvers<ContextType>;
   ConsumerName?: ConsumerNameResolvers<ContextType>;
+  CreditReportQueriesResult?: CreditReportQueriesResultResolvers<ContextType>;
+  CreditReportQueryResult?: CreditReportQueryResultResolvers<ContextType>;
+  CreditReportQueryResultBoolean?: CreditReportQueryResultBooleanResolvers<ContextType>;
+  CreditReportQueryResultFloat?: CreditReportQueryResultFloatResolvers<ContextType>;
+  CreditReportQueryResultInt?: CreditReportQueryResultIntResolvers<ContextType>;
+  CreditReportQueryResultString?: CreditReportQueryResultStringResolvers<ContextType>;
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
   InstaTouchIdHandshake?: InstaTouchIdHandshakeResolvers<ContextType>;

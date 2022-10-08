@@ -3,18 +3,26 @@ scalar DateTime
 scalar JSON
 
 input FirePassQuoteRequest {
+  auto: Boolean
+  autoIds: [String]
   creditId: String
+  flood: Boolean
+  homeowners: Boolean
+  mortgage: Boolean
+  mortgageOptions: MortgageQuoteRequest
   propertyId: String
 }
 
 input MortgageQuoteRequest {
-  annualIncome: Float
+  annualIncome: Int
   cashout: Boolean
   condo: Boolean
+  combinedLoanToValue: Float
   creditScore: Int
   debtToIncome: Float
   firstTimeHomebuyer: Boolean
   investmentProperty: Boolean
+  loanToValue: Float
   loanAmount: Float
   loanTerm: Int
   lock: Int
@@ -31,9 +39,12 @@ input MortgageQuoteRequest {
   selfEmployed: Boolean
   singleFamilyHome: Boolean
   subordinatedFinancing: Boolean
+  subordinateAmount: Float
+  subordinateLoanTerm: Float
   state: String
   townhome: Boolean
   units: Int
+  vaFirst: Boolean
   veteran: Boolean
 }
 
