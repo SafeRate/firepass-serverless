@@ -3,6 +3,7 @@ import { EstatedProperty } from "./estated";
 export class Property {
   condo: boolean;
   coop: boolean;
+  estimatedValue: number;
   manufactured: boolean;
   mobileHome: boolean;
   singleFamily: boolean;
@@ -20,6 +21,8 @@ export class Property {
     this.singleFamily = false;
     this.townhome = false;
     this.units = 1;
+
+    this.estimatedValue = 320000;
 
     const condoItems = ["condominium unit"];
 
@@ -103,6 +106,10 @@ export class Property {
       } else if (landUseType === "quadruplex") {
         this.units = 4;
       }
+    }
+
+    if (this.estated.valuation?.value) {
+      this.estimatedValue = this.estated.valuation.value;
     }
   }
 }

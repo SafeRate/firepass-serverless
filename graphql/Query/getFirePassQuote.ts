@@ -1,9 +1,8 @@
-import { Consumer, QueryResolvers } from "../../types/resolverTypes";
+import { QueryResolvers } from "../../types/resolverTypes";
 import { CreditReport } from "../../utils/creditReport";
 import { EquifaxCreditReportParent } from "../../utils/equifax";
 import { EstatedProperty } from "../../utils/estated";
 import { Property } from "../../utils/property";
-import { getCreditReport } from "./getCreditReport";
 
 export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
   _parent,
@@ -41,7 +40,7 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     );
 
     console.log(
-      `Property\nUnits:${property.units}\nCondo:${property.condo}\nCoop:${property.coop}\nManufactured:${property.manufactured}\nMobile:${property.mobileHome}\nSingle Family:${property.singleFamily}\nTownhome:${property.townhome}`
+      `Property\nUnits:${property.units}\nCondo:${property.condo}\nCoop:${property.coop}\nManufactured:${property.manufactured}\nMobile:${property.mobileHome}\nSingle Family:${property.singleFamily}\nTownhome:${property.townhome}\nEstimated Value:${property.estimatedValue}`
     );
   } catch (error) {}
 
