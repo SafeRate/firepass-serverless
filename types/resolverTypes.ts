@@ -224,7 +224,9 @@ export type Query = {
   getPlaidLinkToken?: Maybe<Scalars['String']>;
   getPropertyInformation?: Maybe<Scalars['String']>;
   getTouchIdOtpPasscode?: Maybe<OtpPasscode>;
+  getUserCreditReports?: Maybe<Array<Maybe<UserCreditReport>>>;
   getUserData?: Maybe<Scalars['String']>;
+  getUserProperties?: Maybe<Array<Maybe<UserProperty>>>;
   helloWorld?: Maybe<Scalars['String']>;
   queryCreditReport?: Maybe<Scalars['JSON']>;
   queryEstated?: Maybe<Scalars['JSON']>;
@@ -273,6 +275,17 @@ export type QueryQueryEstatedArgs = {
 export type QuerySandboxArgs = {
   params?: InputMaybe<Scalars['JSON']>;
   sql: Scalars['String'];
+};
+
+export type UserCreditReport = {
+  __typename?: 'UserCreditReport';
+  timestamp?: Maybe<Scalars['DateTime']>;
+};
+
+export type UserProperty = {
+  __typename?: 'UserProperty';
+  created?: Maybe<Scalars['DateTime']>;
+  display?: Maybe<Scalars['String']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -372,6 +385,8 @@ export type ResolversTypes = ResolversObject<{
   PropertyInput: PropertyInput;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  UserCreditReport: ResolverTypeWrapper<UserCreditReport>;
+  UserProperty: ResolverTypeWrapper<UserProperty>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -403,6 +418,8 @@ export type ResolversParentTypes = ResolversObject<{
   PropertyInput: PropertyInput;
   Query: {};
   String: Scalars['String'];
+  UserCreditReport: UserCreditReport;
+  UserProperty: UserProperty;
 }>;
 
 export type BankAccountResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BankAccount'] = ResolversParentTypes['BankAccount']> = ResolversObject<{
@@ -530,11 +547,24 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getPlaidLinkToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetPlaidLinkTokenArgs>>;
   getPropertyInformation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryGetPropertyInformationArgs, 'fullAddress'>>;
   getTouchIdOtpPasscode?: Resolver<Maybe<ResolversTypes['OtpPasscode']>, ParentType, ContextType, RequireFields<QueryGetTouchIdOtpPasscodeArgs, 'mobileNumber' | 'sessionId'>>;
+  getUserCreditReports?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserCreditReport']>>>, ParentType, ContextType>;
   getUserData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  getUserProperties?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserProperty']>>>, ParentType, ContextType>;
   helloWorld?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   queryCreditReport?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType, RequireFields<QueryQueryCreditReportArgs, 'id'>>;
   queryEstated?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType, RequireFields<QueryQueryEstatedArgs, 'id'>>;
   sandbox?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<QuerySandboxArgs, 'sql'>>;
+}>;
+
+export type UserCreditReportResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserCreditReport'] = ResolversParentTypes['UserCreditReport']> = ResolversObject<{
+  timestamp?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UserPropertyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProperty'] = ResolversParentTypes['UserProperty']> = ResolversObject<{
+  created?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  display?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
@@ -557,5 +587,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   OtpPasscode?: OtpPasscodeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  UserCreditReport?: UserCreditReportResolvers<ContextType>;
+  UserProperty?: UserPropertyResolvers<ContextType>;
 }>;
 

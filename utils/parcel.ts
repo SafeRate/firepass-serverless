@@ -509,6 +509,19 @@ export class ParcelClient {
     return result;
   };
 
+  public getUserCreditReports = async function (
+    userId: string
+  ): Promise<[any]> {
+    const results = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
+      sql: "SELECT user_id, timestamp FROM equifax_credit_reports WHERE user_id = $user_id ORDER BY timestamp DESC;",
+      params: {
+        $user_id: userId,
+      },
+    });
+
+    return results;
+  };
+
   public getUserProperty = async function (
     id: string,
     userId
@@ -537,6 +550,19 @@ export class ParcelClient {
     }
 
     return result;
+  };
+
+  public getUserProperties = async function (userId): Promise<any[] | null> {
+    let result: any[] | null = null;
+
+    const properties = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
+      sql: "SELECT user_id, display FROM properties WHERE user_id = $user_id;",
+      params: {
+        $user_id: userId,
+      },
+    });
+
+    return properties;
   };
 
   public getJSONDocumentById = async (id: string) => {
