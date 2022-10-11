@@ -24,6 +24,10 @@
     "org": "saferate"
   },
   "dependencies": {
+    "@aws-crypto/sha256-js": "^2.0.1",
+    "@aws-sdk/credential-provider-node": "^3.76.0",
+    "@aws-sdk/protocol-http": "^3.58.0",
+    "@aws-sdk/signature-v4": "^3.58.0",
     "@hashgraph/sdk": "^2.14.2",
     "@oasislabs/parcel": "^1.0.0-beta.21",
     "@slack/webhook": "^6.1.0",
@@ -39,6 +43,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.1.4",
     "lodash": "^4.17.21",
+    "node-fetch": "^3.2.3",
     "plaid": "^10.4.0",
     "qs": "^6.10.3",
     "stripe": "^9.5.0"
