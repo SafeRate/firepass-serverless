@@ -61,6 +61,15 @@ type BankAccount {
   type: String
 }
 
+type UserCreditReport {
+  timestamp: DateTime
+}
+
+type UserProperty {
+  created: DateTime
+  display: String
+}
+
 type Consumer {
   id: ID
   name: ConsumerName
@@ -144,7 +153,9 @@ type Query {
   getPlaidLinkToken(id: ID): String
   getPropertyInformation(fullAddress: String!): String
   getTouchIdOtpPasscode(sessionId: String!, mobileNumber: String!): OtpPasscode
+  getUserCreditReports: [UserCreditReport]
   getUserData: String
+  getUserProperties: [UserProperty]
   helloWorld: String
   queryCreditReport(id: ID!, queries: [String]): JSON
   queryEstated(id: ID!, queries: [String]): JSON

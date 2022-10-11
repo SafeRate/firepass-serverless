@@ -5,7 +5,9 @@ import { getInstaTouchIdSession } from "./getInstaTouchIdSession";
 import { getPlaidLinkToken } from "./getPlaidLinkToken";
 import { getPropertyInformation } from "./getPropertyInformation";
 import { getTouchIdOtpPasscode } from "./getTouchIdOtpPasscode";
+import { getUserCreditReports } from "./getUserCreditReports";
 import { getUserData } from "./getUserData";
+import { getUserProperties } from "./getUserProperties";
 import { helloWorld } from "./helloWorld";
 import { queryCreditReport } from "./queryCreditReport";
 import { queryEstated } from "./queryEstated";
@@ -19,7 +21,9 @@ export const Query = {
   getPlaidLinkToken,
   getPropertyInformation,
   getTouchIdOtpPasscode,
+  getUserCreditReports,
   getUserData,
+  getUserProperties,
   helloWorld,
   queryCreditReport,
   queryEstated,
