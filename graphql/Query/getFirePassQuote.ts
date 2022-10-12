@@ -1,4 +1,5 @@
 import { QueryResolvers } from "../../types/resolverTypes";
+import { getFloodQuote } from "../../utils/cartoFront";
 import { CreditReport } from "../../utils/creditReport";
 import { EquifaxCreditReportParent } from "../../utils/equifax";
 import { EstatedProperty } from "../../utils/estated";
@@ -17,7 +18,7 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
   const userId = context.user.id;
   let returnResult: string = "";
 
-  const {
+  let {
     auto,
     autoIds,
     creditId,
@@ -68,7 +69,7 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     }
 
     if (flood) {
-      quotePromises[1] = Promise.resolve(true);
+      quotePromises[1] = getFloodQuote(property.addressFull);
     }
 
     if (homeowners) {
@@ -76,6 +77,42 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     }
 
     if (mortgage) {
+      mortgageOptions = {
+        annualIncome: 100000,
+        cashout: false,
+        condo: false,
+        combinedLoanToValue: 80,
+        creditScore: 800,
+        debtToIncome: 20,
+        firstTimeHomebuyer: false,
+        investmentProperty: false,
+        loanToValue: 80,
+        loanAmount: 320000,
+        loanTerm: 30,
+        lock: 30,
+        manufacturedHome: false,
+        monthlyDebt: 0,
+        points: 0,
+        propertyValue: 400000,
+        purchase: true,
+        primaryResidence: true,
+        rateTermOnly: false,
+        refinance: false,
+        safeRateSavings: 2000,
+        secondaryResidence: false,
+        selfEmployed: false,
+        singleFamilyHome: true,
+        subordinatedFinancing: false,
+        subordinateAmount: 0,
+        subordinateLoanTerm: 0,
+        state: "IL",
+        townhome: false,
+        units: 1,
+        vaFirst: false,
+        veteran: false,
+        ...mortgageOptions,
+      };
+
       mortgageOptions.creditScore = creditReport.fico8;
       mortgageOptions.condo = property.condo;
       mortgageOptions.manufacturedHome = property.manufactured;

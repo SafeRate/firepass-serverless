@@ -1,6 +1,7 @@
 import { EstatedProperty } from "./estated";
 
 export class Property {
+  addressFull: string;
   condo: boolean;
   coop: boolean;
   estimatedValue: number;
@@ -14,6 +15,13 @@ export class Property {
 
   constructor(estatedProperty: EstatedProperty) {
     this.estated = estatedProperty;
+    this.addressFull = `${estatedProperty.address.formatted_street_address}, ${
+      estatedProperty.address.city
+    } ${estatedProperty.address.state} ${estatedProperty.address.zip_code}${
+      estatedProperty.address.zip_plus_four_code
+        ? "-" + estatedProperty.address.zip_plus_four_code
+        : ""
+    }`;
     this.condo = false;
     this.coop = false;
     this.manufactured = false;
