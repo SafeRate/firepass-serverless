@@ -23,6 +23,7 @@ type Env = {
   ESTATED_URL: string;
   ESTATED_API_KEY: string;
   HELLOSIGN_API_KEY: string;
+  NATIONWIDE_CLIENT_ID: string;
   NATIONWIDE_QUOTE_API: string;
   PARCEL_APP_ID: string;
   PARCEL_CLIENT_ID: string;

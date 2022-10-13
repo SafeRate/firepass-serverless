@@ -5,6 +5,7 @@ import {
 } from "./equifax";
 
 export class CreditReport {
+  age: number;
   equifax: EquifaxCreditReportParent;
   fico8: number;
   hasBankruptices: boolean;
@@ -25,6 +26,8 @@ export class CreditReport {
       ) {
         const creditReport: EquifaxCreditReport =
           this.equifax.consumers.equifaxUSConsumerCreditReport[c];
+
+        this.age = creditReport.age;
 
         if (Array.isArray(creditReport.bankruptcies)) {
           this.hasBankruptices = creditReport.bankruptcies.length > 0;

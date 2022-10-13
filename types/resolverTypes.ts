@@ -103,10 +103,51 @@ export type FirePassQuoteRequest = {
   autoIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   creditId?: InputMaybe<Scalars['String']>;
   flood?: InputMaybe<Scalars['Boolean']>;
+  floodOptions?: InputMaybe<Scalars['JSON']>;
   homeowners?: InputMaybe<Scalars['Boolean']>;
+  homeownersOptions?: InputMaybe<Scalars['JSON']>;
   mortgage?: InputMaybe<Scalars['Boolean']>;
   mortgageOptions?: InputMaybe<MortgageQuoteRequest>;
   propertyId?: InputMaybe<Scalars['String']>;
+};
+
+export type FloodQuote = {
+  __typename?: 'FloodQuote';
+  floodZone?: Maybe<Scalars['String']>;
+  private?: Maybe<Array<Maybe<FloodQuoteDetails>>>;
+  public?: Maybe<Array<Maybe<FloodQuoteDetails>>>;
+};
+
+export type FloodQuoteDetails = {
+  __typename?: 'FloodQuoteDetails';
+  basementContentsCoverage?: Maybe<Scalars['Float']>;
+  basementDwellingCoverage?: Maybe<Scalars['Float']>;
+  buildingCoverage?: Maybe<Scalars['Float']>;
+  contentsCoverage?: Maybe<Scalars['Float']>;
+  debrisCoverage?: Maybe<Scalars['Float']>;
+  deckRampCoverage?: Maybe<Scalars['Float']>;
+  deductible?: Maybe<Scalars['Float']>;
+  details?: Maybe<Scalars['JSON']>;
+  estimatedPremium?: Maybe<Scalars['Float']>;
+  fireDeptServCoverage?: Maybe<Scalars['Float']>;
+  iccCoverage?: Maybe<Scalars['Float']>;
+  lawOrdCoverage?: Maybe<Scalars['Float']>;
+  lossAssessCoverage?: Maybe<Scalars['Float']>;
+  lossAvoidanceCoverage?: Maybe<Scalars['Float']>;
+  lossOfUseCoverage?: Maybe<Scalars['Float']>;
+  otherBuildingCoverage?: Maybe<Scalars['Float']>;
+  poolCoverage?: Maybe<Scalars['Float']>;
+  propertyRemoveCoverage?: Maybe<Scalars['Float']>;
+  qid?: Maybe<Scalars['String']>;
+  specialCoverage?: Maybe<Scalars['Float']>;
+  treesCoverage?: Maybe<Scalars['Float']>;
+};
+
+export type FloodQuoteProvider = {
+  __typename?: 'FloodQuoteProvider';
+  id?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  properties?: Maybe<Scalars['JSON']>;
 };
 
 export type InstaTouchIdHandshake = {
@@ -375,6 +416,9 @@ export type ResolversTypes = ResolversObject<{
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   FirePassQuoteRequest: FirePassQuoteRequest;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  FloodQuote: ResolverTypeWrapper<FloodQuote>;
+  FloodQuoteDetails: ResolverTypeWrapper<FloodQuoteDetails>;
+  FloodQuoteProvider: ResolverTypeWrapper<FloodQuoteProvider>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   InstaTouchIdHandshake: ResolverTypeWrapper<InstaTouchIdHandshake>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -408,6 +452,9 @@ export type ResolversParentTypes = ResolversObject<{
   DateTime: Scalars['DateTime'];
   FirePassQuoteRequest: FirePassQuoteRequest;
   Float: Scalars['Float'];
+  FloodQuote: FloodQuote;
+  FloodQuoteDetails: FloodQuoteDetails;
+  FloodQuoteProvider: FloodQuoteProvider;
   ID: Scalars['ID'];
   InstaTouchIdHandshake: InstaTouchIdHandshake;
   Int: Scalars['Int'];
@@ -511,6 +558,45 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export type FloodQuoteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FloodQuote'] = ResolversParentTypes['FloodQuote']> = ResolversObject<{
+  floodZone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  private?: Resolver<Maybe<Array<Maybe<ResolversTypes['FloodQuoteDetails']>>>, ParentType, ContextType>;
+  public?: Resolver<Maybe<Array<Maybe<ResolversTypes['FloodQuoteDetails']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FloodQuoteDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FloodQuoteDetails'] = ResolversParentTypes['FloodQuoteDetails']> = ResolversObject<{
+  basementContentsCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  basementDwellingCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  buildingCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  contentsCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  debrisCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  deckRampCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  deductible?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  details?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  estimatedPremium?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  fireDeptServCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  iccCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lawOrdCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lossAssessCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lossAvoidanceCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lossOfUseCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  otherBuildingCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  poolCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  propertyRemoveCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  qid?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  specialCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  treesCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FloodQuoteProviderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FloodQuoteProvider'] = ResolversParentTypes['FloodQuoteProvider']> = ResolversObject<{
+  id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  properties?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type InstaTouchIdHandshakeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['InstaTouchIdHandshake'] = ResolversParentTypes['InstaTouchIdHandshake']> = ResolversObject<{
   carrier?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   instaTouch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -582,6 +668,9 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   CreditReportQueryResultString?: CreditReportQueryResultStringResolvers<ContextType>;
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
+  FloodQuote?: FloodQuoteResolvers<ContextType>;
+  FloodQuoteDetails?: FloodQuoteDetailsResolvers<ContextType>;
+  FloodQuoteProvider?: FloodQuoteProviderResolvers<ContextType>;
   InstaTouchIdHandshake?: InstaTouchIdHandshakeResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;

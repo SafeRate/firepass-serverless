@@ -3,6 +3,7 @@ import { getFloodQuote } from "../../utils/cartoFront";
 import { CreditReport } from "../../utils/creditReport";
 import { EquifaxCreditReportParent } from "../../utils/equifax";
 import { EstatedProperty } from "../../utils/estated";
+import { getHomeownersQuote } from "../../utils/homeowners";
 import {
   precisionDivide,
   precisionMultiply,
@@ -14,7 +15,7 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
   _parent,
   args,
   context
-): Promise<string> => {
+): Promise<any> => {
   const userId = context.user.id;
   let returnResult: string = "";
 
@@ -23,7 +24,9 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     autoIds,
     creditId,
     flood,
+    floodOptions,
     homeowners,
+    homeownersOptions,
     mortgage,
     mortgageOptions,
     propertyId,
@@ -69,11 +72,17 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     }
 
     if (flood) {
+      // const sampleAddress = "1756 N Bayshore Drive, Miami, Florida 33132";
+      // quotePromises[1] = getFloodQuote(sampleAddress);
       quotePromises[1] = getFloodQuote(property.addressFull);
     }
 
     if (homeowners) {
-      quotePromises[2] = Promise.resolve(true);
+      quotePromises[2] = getHomeownersQuote(
+        creditReport,
+        property,
+        homeownersOptions
+      );
     }
 
     if (mortgage) {
@@ -81,19 +90,14 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
         annualIncome: 100000,
         cashout: false,
         condo: false,
-        combinedLoanToValue: 80,
-        creditScore: 800,
         debtToIncome: 20,
         firstTimeHomebuyer: false,
         investmentProperty: false,
-        loanToValue: 80,
-        loanAmount: 320000,
         loanTerm: 30,
         lock: 30,
         manufacturedHome: false,
         monthlyDebt: 0,
         points: 0,
-        propertyValue: 400000,
         purchase: true,
         primaryResidence: true,
         rateTermOnly: false,
@@ -105,7 +109,7 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
         subordinatedFinancing: false,
         subordinateAmount: 0,
         subordinateLoanTerm: 0,
-        state: "IL",
+        state: property.estated.address.state,
         townhome: false,
         units: 1,
         vaFirst: false,
@@ -169,7 +173,20 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
     }
 
     const quoteResults = await Promise.all(quotePromises);
-  } catch (error) {}
+
+    console.log(JSON.stringify(quoteResults[1], null, 4));
+    console.log(JSON.stringify(quoteResults[2], null, 4));
+    console.log(JSON.stringify(quoteResults[3], null, 4));
+
+    return {
+      auto: quoteResults[0],
+      flood: quoteResults[1],
+      homeowners: quoteResults[2],
+      mortgage: quoteResults[3],
+    };
+  } catch (error) {
+    console.log(error);
+  }
 
   return returnResult;
 };

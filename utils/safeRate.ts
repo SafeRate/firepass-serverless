@@ -19,9 +19,6 @@ export const getMortgageQuote = async (
     },
   };
 
-  console.log("env.SAFE_RATE_QUOTE_API", env.SAFE_RATE_QUOTE_API);
-  console.log("body", body);
-
   try {
     const result: any = await axios.post(env.SAFE_RATE_QUOTE_API, body, {
       headers: {

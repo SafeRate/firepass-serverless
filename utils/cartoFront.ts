@@ -5,6 +5,8 @@ import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import { SignatureV4 } from "@aws-sdk/signature-v4";
 import { HttpRequest } from "@aws-sdk/protocol-http";
 import { default as fetch, Request } from "node-fetch";
+import { query } from "express";
+import { FloodQuote, FloodQuoteDetails } from "../types/resolverTypes";
 const { Sha256 } = crypto;
 
 type PropertyDetails = {
@@ -15,26 +17,69 @@ type PropertyDetails = {
 
 export const getFloodQuote = async (addressFull: string) => {
   const propertyDetails = await getPropertyDetailsByAddress(addressFull);
+  let floodZone: string = "";
+  const publicQuotes: FloodQuoteDetails[] = [];
+  const privateQuotes: FloodQuoteDetails[] = [];
 
   if (
     propertyDetails.data &&
     propertyDetails.data.getPropertyDetailsByAddress
   ) {
+    const dba = propertyDetails.data.getPropertyDetailsByAddress;
+    if (dba.floodZone) {
+      floodZone = dba.floodZone;
+    }
+
     const result = await Promise.all([
       getNatGenResultsByAddress({
         address: addressFull,
-        estated: propertyDetails.data.getPropertyDetailsByAddress.estated,
-        quoteId: propertyDetails.data.getPropertyDetailsByAddress.quoteId,
+        estated: dba.estated,
+        quoteId: dba.quoteId,
       }),
       getTorrentResultsByAddress({
         address: addressFull,
-        estated: propertyDetails.data.getPropertyDetailsByAddress.estated,
-        quoteId: propertyDetails.data.getPropertyDetailsByAddress.quoteId,
+        estated: dba.estated,
+        quoteId: dba.quoteId,
       }),
     ]);
 
-    console.log(JSON.stringify(result, null, 4));
+    if (Array.isArray(result) && result.length && result.length === 2) {
+      const natGenResult = result[0];
+      const torrentResult = result[1];
+
+      if (
+        torrentResult?.data?.getTorrentResultByAddress?.publicQuote
+          ?.estimatedPremium
+      ) {
+        publicQuotes.push({
+          ...torrentResult.data.getTorrentResultByAddress.publicQuote,
+        });
+      }
+
+      if (natGenResult?.data?.getNatGenResultByAddress) {
+        const queryResult = natGenResult.data.getNatGenResultByAddress;
+        if (queryResult.essential?.estimatedPremium) {
+          privateQuotes.push({ ...queryResult.essential });
+        }
+
+        if (queryResult.enhanced?.estimatedPremium) {
+          privateQuotes.push({ ...queryResult.enhanced });
+        }
+
+        if (queryResult.elite?.estimatedPremium) {
+          privateQuotes.push({ ...queryResult.elite });
+        }
+      }
+    }
   }
+
+  const quoteResult: FloodQuote = {
+    floodZone,
+    private: privateQuotes,
+    public: publicQuotes,
+  };
+
+  return quoteResult;
 };
 
 const getNatGenResultsByAddress = async ({

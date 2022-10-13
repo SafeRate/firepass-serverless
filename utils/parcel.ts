@@ -445,7 +445,7 @@ export class ParcelClient {
 
     try {
       await download.pipeTo(saveLocation);
-      console.log(`Document ${id} has been downloaded`);
+      // console.log(`Document ${id} has been downloaded`);
     } catch (error) {
       console.error(`Failed to download document ${id}`);
       throw new Error(error);
@@ -457,7 +457,7 @@ export class ParcelClient {
         console.log("file not Deleted");
         console.log(err);
       } else {
-        console.log("file deleted");
+        // console.log("file deleted");
       }
     });
 

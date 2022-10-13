@@ -7,7 +7,9 @@ input FirePassQuoteRequest {
   autoIds: [String]
   creditId: String
   flood: Boolean
+  floodOptions: JSON
   homeowners: Boolean
+  homeownersOptions: JSON
   mortgage: Boolean
   mortgageOptions: MortgageQuoteRequest
   propertyId: String
@@ -144,10 +146,46 @@ type CreditReportQueriesResult {
   queryResults: [CreditReportQueryResult]
 }
 
+type FloodQuoteProvider {
+  id: String
+  name: String
+  properties: JSON
+}
+
+type FloodQuote {
+  public: [FloodQuoteDetails]
+  private: [FloodQuoteDetails]
+  floodZone: String
+}
+
+type FloodQuoteDetails {
+  basementContentsCoverage: Float
+  basementDwellingCoverage: Float
+  buildingCoverage: Float
+  contentsCoverage: Float
+  debrisCoverage: Float
+  deckRampCoverage: Float
+  deductible: Float
+  details: JSON
+  estimatedPremium: Float
+  fireDeptServCoverage: Float
+  iccCoverage: Float
+  lawOrdCoverage: Float
+  lossAssessCoverage: Float
+  lossAvoidanceCoverage: Float
+  lossOfUseCoverage: Float
+  otherBuildingCoverage: Float
+  poolCoverage: Float
+  propertyRemoveCoverage: Float
+  qid: String
+  specialCoverage: Float
+  treesCoverage: Float
+}
+
 type Query {
   getCreditReport: String
   getDocumentById(id: ID): String
-  getFirePassQuote(quoteRequest: FirePassQuoteRequest): String
+  getFirePassQuote(quoteRequest: FirePassQuoteRequest): JSON
   getInstaTouchIdSession: InstaTouchIdHandshake
   getOneView: String
   getPlaidLinkToken(id: ID): String
