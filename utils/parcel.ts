@@ -479,15 +479,15 @@ export class ParcelClient {
   };
 
   public getUserCreditReport = async function (
-    id: string,
+    timestamp: string,
     userId: string
   ): Promise<EquifaxCreditReportParent | null> {
     let result: EquifaxCreditReportParent | null = null;
 
     const reports = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
-      sql: "SELECT * FROM equifax_credit_reports WHERE user_id = $user_id AND id = $id;",
+      sql: "SELECT * FROM equifax_credit_reports WHERE user_id = $user_id AND timestamp = $timestamp;",
       params: {
-        $id: id,
+        $timestamp: timestamp,
         $user_id: userId,
       },
     });
@@ -495,7 +495,7 @@ export class ParcelClient {
     if (reports && Array.isArray(reports) && reports.length > 0) {
       const document: EquifaxCreditReportParent | null =
         (await this.getJSONDocumentById(
-          id
+          reports[0].id
         )) as EquifaxCreditReportParent | null;
       if (document) {
         result = document;
@@ -523,22 +523,22 @@ export class ParcelClient {
   };
 
   public getUserProperty = async function (
-    id: string,
-    userId
+    display: string,
+    userId: string
   ): Promise<EstatedProperty | null> {
     let result: EstatedProperty | null = null;
 
     const reports = await this.parcel.queryDatabase(env.PARCEL_DATABASE_ID, {
-      sql: "SELECT * FROM properties WHERE user_id = $user_id AND id = $id;",
+      sql: "SELECT * FROM properties WHERE user_id = $user_id AND display = $display;",
       params: {
-        $id: id,
+        $display: display,
         $user_id: userId,
       },
     });
 
     if (reports && Array.isArray(reports) && reports.length > 0) {
       const document: EstatedProperty | null = (await this.getJSONDocumentById(
-        id
+        reports[0].id
       )) as EstatedProperty | null;
       if (document) {
         result = document;

@@ -101,14 +101,14 @@ export type CreditReportQueryResultString = {
 export type FirePassQuoteRequest = {
   auto?: InputMaybe<Scalars['Boolean']>;
   autoIds?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
-  creditId?: InputMaybe<Scalars['String']>;
+  creditTimestamp?: InputMaybe<Scalars['String']>;
   flood?: InputMaybe<Scalars['Boolean']>;
   floodOptions?: InputMaybe<Scalars['JSON']>;
   homeowners?: InputMaybe<Scalars['Boolean']>;
   homeownersOptions?: InputMaybe<Scalars['JSON']>;
   mortgage?: InputMaybe<Scalars['Boolean']>;
   mortgageOptions?: InputMaybe<MortgageQuoteRequest>;
-  propertyId?: InputMaybe<Scalars['String']>;
+  propertyDisplay?: InputMaybe<Scalars['String']>;
 };
 
 export type FloodQuote = {
@@ -259,7 +259,7 @@ export type Query = {
   __typename?: 'Query';
   getCreditReport?: Maybe<Scalars['String']>;
   getDocumentById?: Maybe<Scalars['String']>;
-  getFirePassQuote?: Maybe<Scalars['String']>;
+  getFirePassQuote?: Maybe<Scalars['JSON']>;
   getInstaTouchIdSession?: Maybe<InstaTouchIdHandshake>;
   getOneView?: Maybe<Scalars['String']>;
   getPlaidLinkToken?: Maybe<Scalars['String']>;
@@ -627,7 +627,7 @@ export type OtpPasscodeResolvers<ContextType = Context, ParentType extends Resol
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   getCreditReport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getDocumentById?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetDocumentByIdArgs>>;
-  getFirePassQuote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetFirePassQuoteArgs>>;
+  getFirePassQuote?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType, Partial<QueryGetFirePassQuoteArgs>>;
   getInstaTouchIdSession?: Resolver<Maybe<ResolversTypes['InstaTouchIdHandshake']>, ParentType, ContextType>;
   getOneView?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getPlaidLinkToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, Partial<QueryGetPlaidLinkTokenArgs>>;

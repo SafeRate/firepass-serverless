@@ -5,14 +5,14 @@ scalar JSON
 input FirePassQuoteRequest {
   auto: Boolean
   autoIds: [String]
-  creditId: String
+  creditTimestamp: String
   flood: Boolean
   floodOptions: JSON
   homeowners: Boolean
   homeownersOptions: JSON
   mortgage: Boolean
   mortgageOptions: MortgageQuoteRequest
-  propertyId: String
+  propertyDisplay: String
 }
 
 input MortgageQuoteRequest {

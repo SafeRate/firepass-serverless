@@ -22,20 +22,20 @@ export const getFirePassQuote: QueryResolvers["getFirePassQuote"] = async (
   let {
     auto,
     autoIds,
-    creditId,
+    creditTimestamp,
     flood,
     floodOptions,
     homeowners,
     homeownersOptions,
     mortgage,
     mortgageOptions,
-    propertyId,
+    propertyDisplay,
   } = args.quoteRequest;
 
   try {
     const results = await Promise.all([
-      context.parcelClient.getUserCreditReport(creditId, userId),
-      context.parcelClient.getUserProperty(propertyId, userId),
+      context.parcelClient.getUserCreditReport(creditTimestamp, userId),
+      context.parcelClient.getUserProperty(propertyDisplay, userId),
     ]);
 
     if (!Array.isArray(results) || results.length !== 2) {
